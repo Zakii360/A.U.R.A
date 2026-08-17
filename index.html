@@ -21,7 +21,9 @@ body{
   font:15px system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif
 }
 
-main{width:min(92vw,620px)}
+main{
+  width:min(92vw,680px)
+}
 
 header{
   display:flex;
@@ -52,7 +54,9 @@ h1{
   background:#4d525b
 }
 
-#dot.on{background:#8aa2ff}
+#dot.on{
+  background:#8aa2ff
+}
 
 #conversation{
   padding:20px 0;
@@ -83,14 +87,15 @@ h1{
   font:13px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace
 }
 
-footer{
+.controls{
   display:flex;
   gap:10px;
   flex-wrap:wrap;
   margin-top:20px
 }
 
-button,select{
+button,
+select{
   padding:10px 14px;
   border:1px solid #30343c;
   border-radius:6px;
@@ -99,7 +104,9 @@ button,select{
   font:inherit
 }
 
-button{cursor:pointer}
+button{
+  cursor:pointer
+}
 
 button:hover,
 select:hover{
@@ -111,15 +118,38 @@ button.active{
   background:#151b2b
 }
 
+.customization{
+  margin-top:14px;
+  padding:14px;
+  border:1px solid #1d2026;
+  border-radius:7px;
+  background:#0e1014
+}
+
+.customization label{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin:10px 0;
+  color:#858b96;
+  font-size:13px
+}
+
+.customization input[type="range"]{
+  flex:1
+}
+
 #log{
-  max-height:130px;
-  margin-top:22px;
+  max-height:140px;
+  margin-top:20px;
   overflow:auto;
   color:#686f7b;
   font-size:12px
 }
 
-#log p{margin:5px 0}
+#log p{
+  margin:5px 0
+}
 </style>
 </head>
 
@@ -146,15 +176,59 @@ button.active{
 
 </section>
 
-<footer>
+<div class="controls">
 
   <button id="listen">
     CONSTANT LISTENING: OFF
   </button>
 
+  <button id="autoVoice">
+    AUTO VOICE: ON
+  </button>
+
   <select id="voice" aria-label="Voice"></select>
 
-</footer>
+</div>
+
+<div class="customization">
+
+  <label>
+    Rate
+    <input
+      id="rate"
+      type="range"
+      min=".75"
+      max="1.15"
+      step=".01"
+      value=".94"
+    >
+  </label>
+
+  <label>
+    Pitch
+    <input
+      id="pitch"
+      type="range"
+      min=".60"
+      max="1.40"
+      step=".01"
+      value=".98"
+    >
+  </label>
+
+  <label>
+    Volume
+    <input
+      id="volume"
+      type="range"
+      min=".70"
+      max="1"
+      step=".01"
+      value="1"
+    >
+  </label>
+
+</div>
 
 <div id="log"></div>
 
@@ -163,11 +237,13 @@ button.active{
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
+
 if("serviceWorker" in navigator){
   navigator.serviceWorker
     .register("./sw.js")
     .catch(()=>{});
 }
+
 
 const SUPABASE_URL =
   "https://tvxugmumfvgnvjacwwfz.supabase.co";
@@ -179,11 +255,13 @@ const AURA_URL =
   SUPABASE_URL +
   "/functions/v1/aura-v2";
 
+
 const db =
   window.supabase.createClient(
     SUPABASE_URL,
     SUPABASE_KEY
   );
+
 
 const statusEl =
   document.getElementById("status");
@@ -203,46 +281,107 @@ const logEl =
 const listenBtn =
   document.getElementById("listen");
 
+const autoVoiceBtn =
+  document.getElementById("autoVoice");
+
 const voiceSelect =
   document.getElementById("voice");
 
+const rateControl =
+  document.getElementById("rate");
+
+const pitchControl =
+  document.getElementById("pitch");
+
+const volumeControl =
+  document.getElementById("volume");
+
+
 let recognition = null;
+
 let listening = false;
+
 let waiting = true;
+
 let busy = false;
+
 let speaking = false;
+
 let wakeTimer = null;
+
 let voices = [];
 
 
-function setStatus(text,on=false){
-  statusEl.textContent = text;
-  dot.classList.toggle("on",on);
+/*
+ * Short-term AURA memory.
+ *
+ * This stays in the browser so we don't
+ * need another database table just to make
+ * the conversation remember itself.
+ */
+const conversation = [];
+
+
+const preferences = {
+
+  automaticVoice:true,
+
+  rate:.94,
+
+  pitch:.98,
+
+  volume:1
+};
+
+
+function setStatus(
+  text,
+  active=false
+){
+
+  statusEl.textContent =
+    text;
+
+  dot.classList.toggle(
+    "on",
+    active
+  );
 }
 
 
-function log(source,text){
+function log(
+  source,
+  text
+){
+
   const p =
     document.createElement("p");
 
   p.textContent =
-    source + ": " + text;
+    source +
+    ": " +
+    text;
 
   logEl.prepend(p);
 }
 
 
+/*
+ * Browser voices are loaded asynchronously.
+ */
 function loadVoices(){
 
   voices =
     speechSynthesis.getVoices();
 
-  voiceSelect.innerHTML = "";
+  voiceSelect.innerHTML =
+    "";
 
   const preferred =
-    voices.filter(v =>
-      /en-US|en-GB|en-AU|en-CA/i
-        .test(v.lang)
+    voices.filter(
+      voice =>
+        /en-US|en-GB|en-AU|en-CA/i
+          .test(voice.lang)
     );
 
   const list =
@@ -250,19 +389,31 @@ function loadVoices(){
       ? preferred
       : voices;
 
-  list.forEach(v => {
+  list.forEach(
+    voice => {
 
-    const option =
-      document.createElement("option");
+      const option =
+        document.createElement(
+          "option"
+        );
 
-    option.value =
-      String(voices.indexOf(v));
+      option.value =
+        String(
+          voices.indexOf(
+            voice
+          )
+        );
 
-    option.textContent =
-      v.name + " — " + v.lang;
+      option.textContent =
+        voice.name +
+        " — " +
+        voice.lang;
 
-    voiceSelect.appendChild(option);
-  });
+      voiceSelect.appendChild(
+        option
+      );
+    }
+  );
 }
 
 
@@ -272,16 +423,23 @@ speechSynthesis.onvoiceschanged =
   loadVoices;
 
 
+/*
+ * Display markdown-ish code without
+ * making the page execute it.
+ */
 function render(text){
 
-  reply.textContent = "";
+  reply.textContent =
+    "";
 
   const parts =
     String(text).split(
       /(```[\s\S]*?```)/g
     );
 
-  for(const part of parts){
+  for(
+    const part of parts
+  ){
 
     if(
       part.startsWith("```") &&
@@ -289,10 +447,14 @@ function render(text){
     ){
 
       const pre =
-        document.createElement("pre");
+        document.createElement(
+          "pre"
+        );
 
       const code =
-        document.createElement("code");
+        document.createElement(
+          "code"
+        );
 
       code.textContent =
         part
@@ -305,22 +467,38 @@ function render(text){
             ""
           );
 
-      pre.appendChild(code);
-      reply.appendChild(pre);
+      pre.appendChild(
+        code
+      );
 
-    }else if(part.trim()){
+      reply.appendChild(
+        pre
+      );
+
+    }else if(
+      part.trim()
+    ){
 
       const span =
-        document.createElement("span");
+        document.createElement(
+          "span"
+        );
 
-      span.textContent = part;
+      span.textContent =
+        part;
 
-      reply.appendChild(span);
+      reply.appendChild(
+        span
+      );
     }
   }
 }
 
 
+/*
+ * Convert text into something that sounds
+ * better through browser speech synthesis.
+ */
 function speechText(text){
 
   return String(text)
@@ -401,6 +579,37 @@ function speechText(text){
     )
 
     .replace(
+      /\bCPU\b/gi,
+      "C P U"
+    )
+
+    .replace(
+      /\bGPU\b/gi,
+      "G P U"
+    )
+
+    .replace(
+      /\bRAM\b/gi,
+      "R A M"
+    )
+
+    /*
+     * An em dash becomes a real pause.
+     */
+    .replace(
+      /—/g,
+      " … "
+    )
+
+    /*
+     * Ellipses also become a natural pause.
+     */
+    .replace(
+      /\.{3}/g,
+      " … "
+    )
+
+    .replace(
       /\s+/g,
       " "
     )
@@ -409,131 +618,292 @@ function speechText(text){
 }
 
 
-function speak(text){
+/*
+ * Browser speech synthesis.
+ *
+ * PITCH_KEY's output is applied here.
+ */
+function speak(
+  text,
+  automaticPitch
+){
 
-  return new Promise(resolve => {
+  return new Promise(
+    resolve => {
 
-    const clean =
-      speechText(text);
+      const clean =
+        speechText(text);
 
-    if(!clean){
-      resolve();
-      return;
-    }
+      if(!clean){
 
-    speechSynthesis.cancel();
+        resolve();
 
-    const utterance =
-      new SpeechSynthesisUtterance(
-        clean
+        return;
+      }
+
+      speechSynthesis.cancel();
+
+      const utterance =
+        new SpeechSynthesisUtterance(
+          clean
+        );
+
+
+      const available =
+        speechSynthesis.getVoices();
+
+      const voiceIndex =
+        Number(
+          voiceSelect.value
+        );
+
+      if(
+        available[voiceIndex]
+      ){
+
+        utterance.voice =
+          available[voiceIndex];
+      }
+
+
+      let rate =
+        preferences.rate;
+
+      let pitch =
+        preferences.pitch;
+
+      let volume =
+        preferences.volume;
+
+
+      /*
+       * Automatic voice direction.
+       */
+      if(
+        preferences.automaticVoice &&
+        automaticPitch
+      ){
+
+        if(
+          Number.isFinite(
+            Number(
+              automaticPitch.rate
+            )
+          )
+        ){
+
+          rate =
+            clamp(
+              Number(
+                automaticPitch.rate
+              ),
+              .75,
+              1.15
+            );
+        }
+
+
+        if(
+          Number.isFinite(
+            Number(
+              automaticPitch.pitch
+            )
+          )
+        ){
+
+          pitch =
+            clamp(
+              Number(
+                automaticPitch.pitch
+              ),
+              .60,
+              1.40
+            );
+        }
+
+
+        if(
+          Number.isFinite(
+            Number(
+              automaticPitch.volume
+            )
+          )
+        ){
+
+          volume =
+            clamp(
+              Number(
+                automaticPitch.volume
+              ),
+              .70,
+              1
+            );
+        }
+      }
+
+
+      utterance.rate =
+        rate;
+
+      utterance.pitch =
+        pitch;
+
+      utterance.volume =
+        volume;
+
+
+      speaking =
+        true;
+
+      setStatus(
+        "Speaking",
+        true
       );
 
-    const available =
-      speechSynthesis.getVoices();
 
-    const index =
-      Number(
-        voiceSelect.value
+      utterance.onend =
+        () => {
+
+          speaking =
+            false;
+
+          resolve();
+        };
+
+
+      utterance.onerror =
+        () => {
+
+          speaking =
+            false;
+
+          resolve();
+        };
+
+
+      speechSynthesis.speak(
+        utterance
       );
-
-    if(available[index]){
-      utterance.voice =
-        available[index];
     }
-
-    /*
-     * Slightly conversational.
-     * AURA's actual personality comes
-     * from OpenRouter's response.
-     */
-    utterance.rate = .94;
-    utterance.pitch = .98;
-    utterance.volume = 1;
-
-    speaking = true;
-
-    setStatus(
-      "Speaking",
-      true
-    );
-
-    utterance.onend = () => {
-      speaking = false;
-      resolve();
-    };
-
-    utterance.onerror = () => {
-      speaking = false;
-      resolve();
-    };
-
-    speechSynthesis.speak(
-      utterance
-    );
-  });
+  );
 }
 
 
+function clamp(
+  value,
+  min,
+  max
+){
+
+  return Math.min(
+    max,
+    Math.max(
+      min,
+      value
+    )
+  );
+}
+
+
+/*
+ * Anonymous Supabase session.
+ */
 async function getSession(){
 
   let {
-    data:{session}
+    data:{
+      session
+    }
   } =
     await db.auth.getSession();
+
 
   if(session){
     return session;
   }
 
+
   const result =
     await db.auth.signInAnonymously();
+
 
   if(result.error){
     throw result.error;
   }
 
+
   return result.data.session;
 }
 
 
-async function askAURA(text){
+/*
+ * Main AURA request.
+ */
+async function askAURA(
+  text
+){
 
   if(
     busy ||
     speaking ||
     !text.trim()
   ){
+
     return;
   }
 
-  busy = true;
-  waiting = false;
 
-  clearTimeout(wakeTimer);
+  busy =
+    true;
+
+  waiting =
+    false;
+
+
+  clearTimeout(
+    wakeTimer
+  );
+
 
   try{
     recognition?.stop();
   }catch(_){}
+
 
   setStatus(
     "Thinking",
     true
   );
 
-  heard.textContent =
-    "You: " + text;
 
-  reply.textContent = "";
+  heard.textContent =
+    "You: " +
+    text;
+
+  reply.textContent =
+    "";
+
 
   log(
     "YOU",
     text
   );
 
+
   try{
 
     const session =
       await getSession();
+
+
+    /*
+     * Send the most recent conversation
+     * to AURA for memory.
+     */
+    const history =
+      conversation
+        .slice(-12);
+
 
     const response =
       await fetch(
@@ -554,23 +924,37 @@ async function askAURA(text){
           },
 
           body:JSON.stringify({
-            message:text
+
+            message:text,
+
+            history,
+
+            preferences
+
           })
         }
       );
 
+
     let data;
 
+
     try{
+
       data =
         await response.json();
+
     }catch(_){
+
       throw new Error(
         "AURA returned an invalid response."
       );
     }
 
-    if(!response.ok){
+
+    if(
+      !response.ok
+    ){
 
       throw new Error(
         data.error ||
@@ -578,24 +962,74 @@ async function askAURA(text){
       );
     }
 
-    if(!data.text){
+
+    if(
+      !data.text
+    ){
 
       throw new Error(
         "AURA returned no response."
       );
     }
 
-    render(data.text);
+
+    /*
+     * Save the conversation.
+     */
+    conversation.push(
+
+      {
+        role:"user",
+        content:text
+      },
+
+      {
+        role:"assistant",
+        content:data.text
+      }
+
+    );
+
+
+    /*
+     * Prevent unlimited memory growth.
+     */
+    if(
+      conversation.length >
+      24
+    ){
+
+      conversation.splice(
+        0,
+        conversation.length - 24
+      );
+    }
+
+
+    render(
+      data.text
+    );
+
 
     log(
       "AURA",
       data.text
     );
 
+
+    /*
+     * Speak immediately when the main
+     * AURA response arrives.
+     *
+     * PITCH_KEY's voice instructions
+     * are already attached if available.
+     */
     await speak(
       data.spoken ||
-      data.text
+      data.text,
+      data.pitch
     );
+
 
   }catch(error){
 
@@ -611,28 +1045,36 @@ async function askAURA(text){
       "Error"
     );
 
+
   }finally{
 
-    busy = false;
+    busy =
+      false;
+
 
     if(
       listening &&
       !speaking
     ){
 
-      waiting = true;
+      waiting =
+        true;
 
       setStatus(
         "Listening",
         true
       );
 
+
       setTimeout(
         startListening,
-        250
+        200
       );
 
-    }else if(!listening){
+
+    }else if(
+      !listening
+    ){
 
       setStatus(
         "Ready"
@@ -642,108 +1084,110 @@ async function askAURA(text){
 }
 
 
-function processSpeech(text){
+/*
+ * Wake-word handling.
+ */
+function processSpeech(
+  text
+){
 
   text =
     text.trim();
+
 
   if(
     !text ||
     busy ||
     speaking
   ){
+
     return;
   }
 
+
   /*
-   * Once AURA has been activated,
+   * After AURA has been activated,
    * the next sentence is the command.
    */
   if(!waiting){
 
-    askAURA(text);
+    askAURA(
+      text
+    );
+
     return;
   }
 
-  /*
-   * Supported wake phrases:
-   *
-   * AURA
-   * Hey AURA
-   * Yo AURA
-   * Okay AURA
-   */
+
   const match =
     text.match(
       /^(?:(?:hey|yo|okay|ok)\s+)?aura\b[\s,:-]*(.*)$/i
     );
 
+
   if(!match){
     return;
   }
 
-  waiting = false;
+
+  waiting =
+    false;
+
 
   const command =
     match[1].trim();
 
+
   if(command){
 
-    askAURA(command);
-
-  }else{
-
-    heard.textContent =
-      "AURA is listening…";
-
-    setStatus(
-      "Listening",
-      true
+    askAURA(
+      command
     );
 
-    clearTimeout(
-      wakeTimer
-    );
-
-    wakeTimer =
-      setTimeout(
-        () => {
-
-          if(
-            !busy &&
-            !speaking
-          ){
-
-            waiting = true;
-
-            heard.textContent =
-              "Say “AURA” to get my attention.";
-          }
-
-        },
-        5000
-      );
-  }
-}
-
-
-function startListening(){
-
-  if(
-    !listening ||
-    busy ||
-    speaking ||
-    !recognition
-  ){
     return;
   }
 
-  try{
-    recognition.start();
-  }catch(_){}
+
+  heard.textContent =
+    "AURA is listening…";
+
+
+  setStatus(
+    "Listening",
+    true
+  );
+
+
+  clearTimeout(
+    wakeTimer
+  );
+
+
+  wakeTimer =
+    setTimeout(
+      () => {
+
+        if(
+          !busy &&
+          !speaking
+        ){
+
+          waiting =
+            true;
+
+          heard.textContent =
+            "Say “AURA” to get my attention.";
+        }
+
+      },
+      5000
+    );
 }
 
 
+/*
+ * Speech recognition.
+ */
 const Recognition =
   window.SpeechRecognition ||
   window.webkitSpeechRecognition;
@@ -755,16 +1199,24 @@ if(!Recognition){
     "Speech recognition unavailable"
   );
 
-  listenBtn.disabled = true;
+  listenBtn.disabled =
+    true;
 
 }else{
 
   recognition =
     new Recognition();
 
-  recognition.continuous = true;
-  recognition.interimResults = true;
-  recognition.lang = "en-US";
+
+  recognition.continuous =
+    true;
+
+  recognition.interimResults =
+    true;
+
+  recognition.lang =
+    "en-US";
+
 
   recognition.onstart =
     () => {
@@ -775,15 +1227,24 @@ if(!Recognition){
       );
     };
 
+
   recognition.onresult =
     event => {
 
-      let finalText = "";
-      let interim = "";
+      let finalText =
+        "";
+
+      let interim =
+        "";
+
 
       for(
-        let i = event.resultIndex;
-        i < event.results.length;
+        let i =
+          event.resultIndex;
+
+        i <
+          event.results.length;
+
         i++
       ){
 
@@ -793,15 +1254,21 @@ if(!Recognition){
         const transcript =
           result[0].transcript;
 
-        if(result.isFinal){
 
-          finalText += transcript;
+        if(
+          result.isFinal
+        ){
+
+          finalText +=
+            transcript;
 
         }else{
 
-          interim += transcript;
+          interim +=
+            transcript;
         }
       }
+
 
       if(
         interim &&
@@ -813,6 +1280,7 @@ if(!Recognition){
           interim;
       }
 
+
       if(finalText){
 
         processSpeech(
@@ -821,29 +1289,39 @@ if(!Recognition){
       }
     };
 
+
   recognition.onerror =
     event => {
 
       if(
-        event.error === "not-allowed" ||
-        event.error === "service-not-allowed"
+        event.error ===
+          "not-allowed" ||
+
+        event.error ===
+          "service-not-allowed"
       ){
 
-        listening = false;
+        listening =
+          false;
+
 
         listenBtn.textContent =
           "CONSTANT LISTENING: OFF";
+
 
         listenBtn.classList.remove(
           "active"
         );
 
+
         setStatus(
           "Microphone permission required"
         );
 
+
         return;
       }
+
 
       if(listening){
 
@@ -853,6 +1331,7 @@ if(!Recognition){
         );
       }
     };
+
 
   recognition.onend =
     () => {
@@ -872,6 +1351,9 @@ if(!Recognition){
 }
 
 
+/*
+ * Constant listening toggle.
+ */
 listenBtn.onclick =
   async () => {
 
@@ -881,25 +1363,35 @@ listenBtn.onclick =
 
         await getSession();
 
-        listening = true;
-        waiting = true;
+
+        listening =
+          true;
+
+        waiting =
+          true;
+
 
         listenBtn.textContent =
           "CONSTANT LISTENING: ON";
+
 
         listenBtn.classList.add(
           "active"
         );
 
+
         heard.textContent =
           "Say “AURA” to get my attention.";
+
 
         setStatus(
           "Listening",
           true
         );
 
+
         startListening();
+
 
       }catch(error){
 
@@ -913,31 +1405,42 @@ listenBtn.onclick =
         );
       }
 
+
     }else{
 
-      listening = false;
-      waiting = true;
+      listening =
+        false;
+
+      waiting =
+        true;
+
 
       speechSynthesis.cancel();
+
 
       clearTimeout(
         wakeTimer
       );
 
+
       try{
         recognition?.stop();
       }catch(_){}
 
+
       listenBtn.textContent =
         "CONSTANT LISTENING: OFF";
+
 
       listenBtn.classList.remove(
         "active"
       );
 
+
       setStatus(
         "Ready"
       );
+
 
       heard.textContent =
         "Say “AURA” to get my attention.";
@@ -945,6 +1448,66 @@ listenBtn.onclick =
   };
 
 
+/*
+ * Auto voice toggle.
+ */
+autoVoiceBtn.onclick =
+  () => {
+
+    preferences.automaticVoice =
+      !preferences.automaticVoice;
+
+
+    autoVoiceBtn.textContent =
+      "AUTO VOICE: " +
+      (
+        preferences.automaticVoice
+          ? "ON"
+          : "OFF"
+      );
+
+
+    autoVoiceBtn.classList.toggle(
+      "active",
+      preferences.automaticVoice
+    );
+  };
+
+
+rateControl.oninput =
+  () => {
+
+    preferences.rate =
+      Number(
+        rateControl.value
+      );
+  };
+
+
+pitchControl.oninput =
+  () => {
+
+    preferences.pitch =
+      Number(
+        pitchControl.value
+      );
+  };
+
+
+volumeControl.oninput =
+  () => {
+
+    preferences.volume =
+      Number(
+        volumeControl.value
+      );
+  };
+
+
+/*
+ * Establish the anonymous session
+ * when the page loads.
+ */
 getSession().catch(
   error =>
     log(

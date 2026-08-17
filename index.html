@@ -5,10 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0b0c0f">
 <link rel="manifest" href="manifest.json">
-<title>AURA</title>
+<title>A.U.R.A</title>
 
 <style>
 *{box-sizing:border-box}
+
 body{
   margin:0;
   min-height:100vh;
@@ -18,19 +19,23 @@ body{
   color:#e7e9ed;
   font:15px system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif
 }
+
 main{width:min(92vw,620px)}
+
 header{
   display:flex;
-  justify-content:space-between;
   align-items:center;
+  justify-content:space-between;
   margin-bottom:28px
 }
+
 h1{
   margin:0;
   font-size:18px;
   font-weight:600;
   letter-spacing:.16em
 }
+
 #state{
   display:flex;
   align-items:center;
@@ -38,29 +43,37 @@ h1{
   color:#858b96;
   font-size:13px
 }
+
 #indicator{
   width:7px;
   height:7px;
   border-radius:50%;
   background:#4d525b
 }
-#indicator.active{background:#8aa2ff}
+
+#indicator.active{
+  background:#8aa2ff
+}
+
 #conversation{
   padding:20px 0;
   border-top:1px solid #1d2026;
   border-bottom:1px solid #1d2026
 }
+
 #heard{
   min-height:22px;
   margin-bottom:14px;
   color:#858b96
 }
+
 #reply{
   min-height:50px;
   line-height:1.65;
   white-space:pre-wrap;
   overflow-wrap:anywhere
 }
+
 #reply pre{
   margin:16px 0 0;
   padding:14px;
@@ -70,26 +83,41 @@ h1{
   background:#111318;
   font:13px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace
 }
+
 footer{
   display:flex;
   gap:10px;
   flex-wrap:wrap;
   margin-top:20px
 }
-button,select{
+
+button{
   padding:10px 14px;
   border:1px solid #30343c;
   border-radius:6px;
   background:#121419;
   color:#e7e9ed;
-  font:inherit
+  font:inherit;
+  cursor:pointer
 }
-button{cursor:pointer}
-button:hover,select:hover{background:#181b21}
+
+button:hover{
+  background:#181b21
+}
+
 button.active{
   border-color:#536cae;
   background:#151b2b
 }
+
+#voiceStatus{
+  padding:10px 14px;
+  border:1px solid #30343c;
+  border-radius:6px;
+  color:#858b96;
+  font-size:13px
+}
+
 #log{
   max-height:140px;
   margin-top:22px;
@@ -97,6 +125,7 @@ button.active{
   color:#686f7b;
   font-size:12px
 }
+
 #log p{margin:5px 0}
 </style>
 </head>
@@ -130,29 +159,9 @@ button.active{
     CONSTANT LISTENING: OFF
   </button>
 
-  <select id="voice" aria-label="AURA voice">
-
-    <option value="21m00Tcm4TlvDq8ikWAM">
-      Rachel
-    </option>
-
-    <option value="EXAVITQu4vr4xnSDxMaL">
-      Bella
-    </option>
-
-    <option value="ErXwobaYiN019PkySvjV">
-      Antoni
-    </option>
-
-    <option value="TxGEqnHWrfWFTfGW9XjX">
-      Josh
-    </option>
-
-    <option value="VR6AewLTigWG4xSOukaG">
-      Arnold
-    </option>
-
-  </select>
+  <div id="voiceStatus">
+    ElevenLabs: account voice
+  </div>
 
 </footer>
 
@@ -163,8 +172,11 @@ button.active{
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
+
 if("serviceWorker" in navigator){
-  navigator.serviceWorker.register("./sw.js").catch(()=>{});
+  navigator.serviceWorker
+    .register("./sw.js")
+    .catch(()=>{});
 }
 
 const SUPABASE_URL =
@@ -174,7 +186,8 @@ const SUPABASE_KEY =
   "sb_publishable_1mPqnw9hx5Vm0O_o4O_fsg_96YAhDuY";
 
 const AURA_FUNCTION =
-  SUPABASE_URL + "/functions/v1/aura-v2";
+  SUPABASE_URL +
+  "/functions/v1/aura-v2";
 
 const client =
   window.supabase.createClient(
@@ -200,8 +213,8 @@ const logEl =
 const listenBtn =
   document.getElementById("listen");
 
-const voiceEl =
-  document.getElementById("voice");
+const voiceStatus =
+  document.getElementById("voiceStatus");
 
 const Recognition =
   window.SpeechRecognition ||
@@ -215,8 +228,12 @@ let speaking = false;
 let wakeTimer = null;
 
 
-function status(text,active=false){
+function setStatus(
+  text,
+  active = false
+){
   statusEl.textContent = text;
+
   indicatorEl.classList.toggle(
     "active",
     active
@@ -224,14 +241,22 @@ function status(text,active=false){
 }
 
 
-function log(source,text){
-  const p = document.createElement("p");
-  p.textContent = source + ": " + text;
+function addLog(
+  source,
+  text
+){
+  const p =
+    document.createElement("p");
+
+  p.textContent =
+    source + ": " + text;
+
   logEl.prepend(p);
 }
 
 
-function render(text){
+function renderResponse(text){
+
   replyEl.textContent = "";
 
   const parts =
@@ -248,8 +273,14 @@ function render(text){
 
       const code =
         part
-          .replace(/^```[^\n]*\n?/,"")
-          .replace(/```$/,"");
+          .replace(
+            /^```[^\n]*\n?/,
+            ""
+          )
+          .replace(
+            /```$/,
+            ""
+          );
 
       const pre =
         document.createElement("pre");
@@ -258,6 +289,7 @@ function render(text){
         document.createElement("code");
 
       codeEl.textContent = code;
+
       pre.appendChild(codeEl);
       replyEl.appendChild(pre);
 
@@ -267,52 +299,74 @@ function render(text){
         document.createElement("span");
 
       span.textContent = part;
+
       replyEl.appendChild(span);
     }
   }
 }
 
 
-async function session(){
+async function getSession(){
 
-  let {
+  const {
     data:{session}
-  } = await client.auth.getSession();
+  } =
+    await client.auth.getSession();
 
-  if(session) return session;
-
-  const result =
-    await client.auth.signInAnonymously();
-
-  if(result.error){
-    throw result.error;
+  if(session){
+    return session;
   }
 
-  return result.data.session;
+  const {
+    data,
+    error
+  } =
+    await client.auth.signInAnonymously();
+
+  if(error){
+    throw error;
+  }
+
+  return data.session;
 }
 
 
 async function playAudio(
-  audioData,
-  audioType="audio/mpeg"
+  base64,
+  type
 ){
 
-  if(!audioData){
+  if(!base64){
     throw new Error(
       "AURA returned no voice audio."
     );
   }
 
+  const binary =
+    atob(base64);
+
   const bytes =
-    Uint8Array.from(
-      atob(audioData),
-      c => c.charCodeAt(0)
+    new Uint8Array(
+      binary.length
     );
+
+  for(
+    let i = 0;
+    i < binary.length;
+    i++
+  ){
+    bytes[i] =
+      binary.charCodeAt(i);
+  }
 
   const blob =
     new Blob(
       [bytes],
-      {type:audioType}
+      {
+        type:
+          type ||
+          "audio/mpeg"
+      }
     );
 
   const url =
@@ -323,7 +377,7 @@ async function playAudio(
 
   speaking = true;
 
-  status(
+  setStatus(
     "Speaking",
     true
   );
@@ -334,20 +388,27 @@ async function playAudio(
 
     await new Promise(
       resolve => {
-        audio.onended = resolve;
-        audio.onerror = resolve;
+
+        audio.onended =
+          resolve;
+
+        audio.onerror =
+          resolve;
       }
     );
 
   }finally{
 
     URL.revokeObjectURL(url);
+
     speaking = false;
   }
 }
 
 
-async function ask(message){
+async function askAURA(
+  message
+){
 
   if(
     busy ||
@@ -366,7 +427,7 @@ async function ask(message){
     recognition?.stop();
   }catch(_){}
 
-  status(
+  setStatus(
     "Thinking",
     true
   );
@@ -376,21 +437,15 @@ async function ask(message){
 
   replyEl.textContent = "";
 
-  log(
+  addLog(
     "YOU",
     message
   );
 
   try{
 
-    const s =
-      await session();
-
-    if(!s){
-      throw new Error(
-        "AURA could not authenticate."
-      );
-    }
+    const session =
+      await getSession();
 
     const response =
       await fetch(
@@ -404,15 +459,14 @@ async function ask(message){
 
             "Authorization":
               "Bearer " +
-              s.access_token,
+              session.access_token,
 
             "apikey":
               SUPABASE_KEY
           },
 
           body:JSON.stringify({
-            message:message,
-            voiceId:voiceEl.value
+            message:message
           })
         }
       );
@@ -420,7 +474,8 @@ async function ask(message){
     let data;
 
     try{
-      data = await response.json();
+      data =
+        await response.json();
     }catch(_){
       throw new Error(
         "AURA returned an invalid response."
@@ -436,43 +491,39 @@ async function ask(message){
     }
 
     if(data.text){
-      render(data.text);
 
-      log(
+      renderResponse(
+        data.text
+      );
+
+      addLog(
         "AURA",
         data.text
       );
     }
 
-    /*
-     * The SAME aura-v2 request provides
-     * the ElevenLabs audio.
-     */
-    if(data.audio){
+    if(data.voice?.name){
 
-      await playAudio(
-        data.audio,
-        data.audioType ||
-        "audio/mpeg"
-      );
-
-    }else{
-
-      throw new Error(
-        "AURA replied without audio."
-      );
+      voiceStatus.textContent =
+        "ElevenLabs: " +
+        data.voice.name;
     }
+
+    await playAudio(
+      data.audio,
+      data.audioType
+    );
 
   }catch(error){
 
-    status(
+    setStatus(
       "Error"
     );
 
     replyEl.textContent =
       error.message;
 
-    log(
+    addLog(
       "ERROR",
       error.message
     );
@@ -488,7 +539,7 @@ async function ask(message){
 
       waitingForWake = true;
 
-      status(
+      setStatus(
         "Listening",
         true
       );
@@ -497,9 +548,10 @@ async function ask(message){
         startListening,
         250
       );
+
     }else if(!constantListening){
 
-      status(
+      setStatus(
         "Ready"
       );
     }
@@ -507,39 +559,31 @@ async function ask(message){
 }
 
 
-function handleSpeech(
+function processSpeech(
   transcript
 ){
 
   const text =
     transcript.trim();
 
-  if(!text)return;
-
-  /*
-   * Already awake:
-   * the next sentence is the command.
-   */
-  if(!waitingForWake){
-
-    ask(text);
+  if(!text){
     return;
   }
 
-  /*
-   * Wake phrase can be:
-   *
-   * AURA
-   * Hey AURA
-   * Yo AURA
-   * Okay AURA
-   */
+  if(!waitingForWake){
+
+    askAURA(text);
+    return;
+  }
+
   const match =
     text.match(
       /^(?:(?:hey|yo|okay|ok)\s+)?aura\b[\s,:-]*(.*)$/i
     );
 
-  if(!match)return;
+  if(!match){
+    return;
+  }
 
   const command =
     match[1].trim();
@@ -548,28 +592,30 @@ function handleSpeech(
 
   if(command){
 
-    ask(command);
+    askAURA(command);
 
   }else{
 
     heardEl.textContent =
       "AURA is listening…";
 
-    status(
+    setStatus(
       "Listening",
       true
     );
 
-    clearTimeout(wakeTimer);
+    clearTimeout(
+      wakeTimer
+    );
 
     wakeTimer =
       setTimeout(
         ()=>{
           if(
-            waitingForWake === false &&
             !busy &&
             !speaking
           ){
+
             waitingForWake = true;
 
             heardEl.textContent =
@@ -601,7 +647,7 @@ function startListening(){
 
 if(!Recognition){
 
-  status(
+  setStatus(
     "Speech recognition unavailable"
   );
 
@@ -618,7 +664,7 @@ if(!Recognition){
 
   recognition.onstart = ()=>{
 
-    status(
+    setStatus(
       "Listening",
       true
     );
@@ -664,7 +710,7 @@ if(!Recognition){
 
       if(finalText){
 
-        handleSpeech(
+        processSpeech(
           finalText
         );
       }
@@ -687,7 +733,7 @@ if(!Recognition){
           "active"
         );
 
-        status(
+        setStatus(
           "Microphone permission required"
         );
 
@@ -727,7 +773,7 @@ listenBtn.onclick =
 
       try{
 
-        await session();
+        await getSession();
 
         constantListening = true;
         waitingForWake = true;
@@ -742,7 +788,7 @@ listenBtn.onclick =
         heardEl.textContent =
           "Say “AURA” to get my attention.";
 
-        status(
+        setStatus(
           "Listening",
           true
         );
@@ -751,11 +797,11 @@ listenBtn.onclick =
 
       }catch(error){
 
-        status(
+        setStatus(
           "Authentication failed"
         );
 
-        log(
+        addLog(
           "ERROR",
           error.message
         );
@@ -765,11 +811,8 @@ listenBtn.onclick =
 
       constantListening = false;
       waitingForWake = true;
-      busy = false;
 
-      clearTimeout(
-        wakeTimer
-      );
+      clearTimeout(wakeTimer);
 
       try{
         recognition?.stop();
@@ -782,7 +825,7 @@ listenBtn.onclick =
         "active"
       );
 
-      status(
+      setStatus(
         "Ready"
       );
 
@@ -792,11 +835,12 @@ listenBtn.onclick =
   };
 
 
-session().catch(
-  error => log(
-    "AUTH",
-    error.message
-  )
+getSession().catch(
+  error =>
+    addLog(
+      "AUTH",
+      error.message
+    )
 );
 
 </script>

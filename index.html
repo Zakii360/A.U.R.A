@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#08090d">
+  <link rel="manifest" href="manifest.json">
+  <title>AURA</title>
+
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;display:grid;place-items:center;background:#08090d;color:#f4f6fb;font:16px system-ui,sans-serif}
+    main{text-align:center;width:min(92vw,520px)}
+    #orb{width:150px;height:150px;margin:0 auto 28px;border:1px solid #303746;border-radius:50%;display:grid;place-items:center;box-shadow:0 0 50px #151b2a;transition:.25s}
+    #orb.on{box-shadow:0 0 80px #315cff;border-color:#5578ff;transform:scale(1.03)}
+    #orb.think{animation:pulse 1s infinite alternate}
+    @keyframes pulse{to{transform:scale(1.08)}}
+    h1{letter-spacing:.35em;margin:0 0 8px}
+    #status{color:#8992a5;min-height:24px}
+    #heard{margin:24px 0;min-height:48px;color:#cbd2df}
+    button{border:1px solid #394154;background:#111520;color:#fff;border-radius:999px;padding:13px 22px;cursor:pointer}
+    button:hover{background:#171c29}
+    button:disabled{opacity:.5;cursor:not-allowed}
+    #log{margin-top:22px;text-align:left;font-size:13px;color:#8f98aa;max-height:180px;overflow:auto}
+    #log p{margin:7px 0}
+  </style>
+</head>
+
+<body>
+  <main>
+    <div id="orb"><span>◉</span></div>
+
+    <h1>AURA</h1>
+
+    <div id="status">Ready</div>
+
+    <div id="heard">
+      Say “AURA”, “Hey AURA”, or “Yo AURA”.
+    </div>
+
+    <button id="listen">
+      CONSTANT LISTENING: OFF
+    </button>
+
+    <div id="log"></div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./sw.js").catch(() => {});
+    }
+
+    const SUPABASE_URL =
+      "https://tvxugmumfvgnvjacwwfz.supabase.co";
+
+    const SUPABASE_KEY =
+      "sb_publishable_1mPqnw9hx5Vm0O_o4O_fsg_96YAhDuY";
+
+    const AURA_FUNCTION =
+      SUPABASE_URL + "/functions/v1/aura";
+
+    const supabase =
+      window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+      );
+
+    const statusEl = document.querySelector("#status");
+    const heardEl = document.querySelector("#heard");
+    const logEl = document.querySelector("#log");
+    const orb = document.querySelector("#orb");
+    const listenButton = document.querySelector("#listen");
+
+    const SpeechRecognition =
+      window.SpeechRecognition ||
+      window.webkitSpeechRecognition;
+
+    let recognition = null;
+    let constantListening = false;
+    let busy = false;
+
+    function setStatus(text, active = false) {
+      statusEl.textContent = text;
+      orb.classList.toggle("on", active);
+    }
+
+    function addLog(who, text) {
+      const p = document.createElement("p");
+      p.textContent = who + ": " + text;
+      logEl.prepend(p);
+    }
+
+    function speak(text) {
+      return new Promise(resolve => {
+        speechSynthesis.cancel();
+
+        const utterance =
+          new SpeechSynthesisUtterance(text);
+
+        utterance.rate = 1.02;
+        utterance.pitch = 0.95;
+
+        utterance.onend = resolve;
+        utterance.onerror = resolve;
+
+        speechSynthesis.speak(utterance);
+      });
+    }
+
+    async function authenticate() {
+      const {
+        data: { session }
+      } = await supabase.auth.getSession();
+
+      if (session) {
+        return session;
+      }
+
+      const { data, error } =
+        await supabase.auth.signInAnonymously();
+
+      if (error) {
+        setStatus("Supabase authentication failed");
+        addLog("ERROR", error.message);
+        return null;
+      }
+
+      return data.session;
+    }
+
+    async function askAura(message) {
+      if (busy) return;
+
+      busy = true;
+
+      orb.classList.add("think");
+      setStatus("Thinking…", true);
+
+      addLog("YOU", message);
+
+      try {
+        const {
+          data: { session }
+        } = await supabase.auth.getSession();
+
+        if (!session) {
+          throw new Error("No Supabase session");
+        }
+
+        const response = await fetch(
+          AURA_FUNCTION,
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization":
+                "Bearer " + session.access_token
+            },
+
+            body: JSON.stringify({
+              message: message
+            })
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.error || "AURA request failed"
+          );
+        }
+
+        const reply = data.text;
+
+        heardEl.textContent = reply;
+        addLog("AURA", reply);
+
+        setStatus(
+          constantListening
+            ? "Listening for AURA…"
+            : "Ready",
+          constantListening
+        );
+
+        await speak(reply);
+
+      } catch (error) {
+        setStatus("Error");
+        heardEl.textContent = error.message;
+        addLog("ERROR", error.message);
+        await speak("I hit an error.");
+      }
+
+      busy = false;
+      orb.classList.remove("think");
+
+      if (constantListening) {
+        startRecognition();
+      }
+    }
+
+    function processSpeech(text) {
+      if (!text) return;
+
+      heardEl.textContent = text;
+
+      /*
+       Accepts:
+
+       AURA hello
+       Hey AURA hello
+       Yo AURA hello
+       Okay AURA hello
+       Ok AURA hello
+
+       Case-insensitive.
+      */
+
+      const match = text.match(
+        /^(?:(?:hey|yo|okay|ok)\s+)?aura\b[\s,:-]*(.*)$/i
+      );
+
+      if (!match) return;
+
+      const command =
+        match[1].trim();
+
+      if (!command) {
+        setStatus("Yes?", true);
+        speak("Yes?");
+        return;
+      }
+
+      askAura(command);
+    }
+
+    function startRecognition() {
+      if (
+        !constantListening ||
+        !recognition ||
+        busy
+      ) {
+        return;
+      }
+
+      try {
+        recognition.start();
+      } catch (_) {}
+    }
+
+    if (!SpeechRecognition) {
+      setStatus(
+        "Speech recognition is not supported here"
+      );
+
+      listenButton.disabled = true;
+
+    } else {
+
+      recognition =
+        new SpeechRecognition();
+
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = "en-US";
+
+      recognition.onstart = () => {
+        setStatus(
+          "Listening for AURA…",
+          true
+        );
+      };
+
+      recognition.onresult = event => {
+        let text = "";
+
+        for (
+          let i = event.resultIndex;
+          i < event.results.length;
+          i++
+        ) {
+          text +=
+            event.results[i][0].transcript;
+        }
+
+        processSpeech(text.trim());
+      };
+
+      recognition.onerror = event => {
+
+        if (
+          event.error === "not-allowed" ||
+          event.error === "service-not-allowed"
+        ) {
+          constantListening = false;
+
+          listenButton.textContent =
+            "CONSTANT LISTENING: OFF";
+
+          setStatus(
+            "Microphone permission required"
+          );
+
+          return;
+        }
+
+        if (constantListening) {
+          setTimeout(
+            startRecognition,
+            500
+          );
+        }
+      };
+
+      recognition.onend = () => {
+        if (
+          constantListening &&
+          !busy
+        ) {
+          setTimeout(
+            startRecognition,
+            150
+          );
+        }
+      };
+    }
+
+    listenButton.onclick = async () => {
+
+      if (!constantListening) {
+
+        const session =
+          await authenticate();
+
+        if (!session) return;
+
+        constantListening = true;
+
+        listenButton.textContent =
+          "CONSTANT LISTENING: ON";
+
+        setStatus(
+          "Starting microphone…",
+          true
+        );
+
+        startRecognition();
+
+      } else {
+
+        constantListening = false;
+
+        try {
+          recognition.stop();
+        } catch (_) {}
+
+        speechSynthesis.cancel();
+
+        listenButton.textContent =
+          "CONSTANT LISTENING: OFF";
+
+        setStatus("Ready");
+      }
+    };
+  </script>
+</body>
+</html>

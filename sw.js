@@ -1,10 +1,11 @@
-const CACHE = "aura-v2";
+const CACHE_NAME = "aura-static-v3";
 
-const STATIC = [
+const STATIC_FILES = [
   "./",
   "./index.html",
   "./manifest.json"
 ];
+
 
 self.addEventListener(
   "install",
@@ -12,9 +13,9 @@ self.addEventListener(
 
     event.waitUntil(
       caches
-        .open(CACHE)
+        .open(CACHE_NAME)
         .then(cache =>
-          cache.addAll(STATIC)
+          cache.addAll(STATIC_FILES)
         )
     );
 
@@ -35,7 +36,7 @@ self.addEventListener(
             keys
               .filter(
                 key =>
-                  key !== CACHE
+                  key !== CACHE_NAME
               )
               .map(
                 key =>
@@ -57,16 +58,26 @@ self.addEventListener(
     const request =
       event.request;
 
+    if(
+      request.method !== "GET"
+    ){
+      return;
+    }
+
+
     /*
-     * Never cache API/Supabase requests.
+     * Never cache Supabase,
+     * OpenRouter, auth, or function
+     * requests.
      */
     if(
-      request.method !== "GET" ||
       request.url.includes(
         ".supabase.co"
+      ) ||
+      request.url.includes(
+        "openrouter.ai"
       )
     ){
-
       return;
     }
 
@@ -90,9 +101,10 @@ self.addEventListener(
 
               if(
                 !response ||
-                response.status !== 200
+                response.status !== 200 ||
+                response.type ===
+                  "opaque"
               ){
-
                 return response;
               }
 
@@ -102,7 +114,7 @@ self.addEventListener(
 
 
               caches.open(
-                CACHE
+                CACHE_NAME
               ).then(
                 cache =>
                   cache.put(

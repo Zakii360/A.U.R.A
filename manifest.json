@@ -1,10 +1,8 @@
 {
   "name": "AURA",
   "short_name": "AURA",
-  "description": "AURA - Autonomous User Reasoning Assistant",
   "start_url": "./",
-  "scope": "./",
   "display": "standalone",
-  "background_color": "#08090d",
-  "theme_color": "#08090d"
+  "background_color": "#0b0c0f",
+  "theme_color": "#0b0c0f"
 }

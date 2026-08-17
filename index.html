@@ -4,7 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0b0c0f">
-<link rel="manifest" href="manifest.json">
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="data:,">
 <title>A.U.R.A</title>
 
 <style>
@@ -24,8 +25,8 @@ main{width:min(92vw,620px)}
 
 header{
   display:flex;
-  align-items:center;
   justify-content:space-between;
+  align-items:center;
   margin-bottom:28px
 }
 
@@ -44,16 +45,14 @@ h1{
   font-size:13px
 }
 
-#indicator{
+#dot{
   width:7px;
   height:7px;
   border-radius:50%;
   background:#4d525b
 }
 
-#indicator.active{
-  background:#8aa2ff
-}
+#dot.on{background:#8aa2ff}
 
 #conversation{
   padding:20px 0;
@@ -91,17 +90,19 @@ footer{
   margin-top:20px
 }
 
-button{
+button,select{
   padding:10px 14px;
   border:1px solid #30343c;
   border-radius:6px;
   background:#121419;
   color:#e7e9ed;
-  font:inherit;
-  cursor:pointer
+  font:inherit
 }
 
-button:hover{
+button{cursor:pointer}
+
+button:hover,
+select:hover{
   background:#181b21
 }
 
@@ -110,16 +111,8 @@ button.active{
   background:#151b2b
 }
 
-#voiceStatus{
-  padding:10px 14px;
-  border:1px solid #30343c;
-  border-radius:6px;
-  color:#858b96;
-  font-size:13px
-}
-
 #log{
-  max-height:140px;
+  max-height:130px;
   margin-top:22px;
   overflow:auto;
   color:#686f7b;
@@ -138,7 +131,7 @@ button.active{
   <h1>AURA</h1>
 
   <div id="state">
-    <span id="indicator"></span>
+    <span id="dot"></span>
     <span id="status">Ready</span>
   </div>
 </header>
@@ -159,9 +152,7 @@ button.active{
     CONSTANT LISTENING: OFF
   </button>
 
-  <div id="voiceStatus">
-    ElevenLabs: account voice
-  </div>
+  <select id="voice" aria-label="Voice"></select>
 
 </footer>
 
@@ -172,7 +163,6 @@ button.active{
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-
 if("serviceWorker" in navigator){
   navigator.serviceWorker
     .register("./sw.js")
@@ -185,11 +175,11 @@ const SUPABASE_URL =
 const SUPABASE_KEY =
   "sb_publishable_1mPqnw9hx5Vm0O_o4O_fsg_96YAhDuY";
 
-const AURA_FUNCTION =
+const AURA_URL =
   SUPABASE_URL +
   "/functions/v1/aura-v2";
 
-const client =
+const db =
   window.supabase.createClient(
     SUPABASE_URL,
     SUPABASE_KEY
@@ -198,13 +188,13 @@ const client =
 const statusEl =
   document.getElementById("status");
 
-const indicatorEl =
-  document.getElementById("indicator");
+const dot =
+  document.getElementById("dot");
 
-const heardEl =
+const heard =
   document.getElementById("heard");
 
-const replyEl =
+const reply =
   document.getElementById("reply");
 
 const logEl =
@@ -213,38 +203,25 @@ const logEl =
 const listenBtn =
   document.getElementById("listen");
 
-const voiceStatus =
-  document.getElementById("voiceStatus");
-
-const Recognition =
-  window.SpeechRecognition ||
-  window.webkitSpeechRecognition;
+const voiceSelect =
+  document.getElementById("voice");
 
 let recognition = null;
-let constantListening = false;
-let waitingForWake = true;
+let listening = false;
+let waiting = true;
 let busy = false;
 let speaking = false;
 let wakeTimer = null;
+let voices = [];
 
 
-function setStatus(
-  text,
-  active = false
-){
+function setStatus(text,on=false){
   statusEl.textContent = text;
-
-  indicatorEl.classList.toggle(
-    "active",
-    active
-  );
+  dot.classList.toggle("on",on);
 }
 
 
-function addLog(
-  source,
-  text
-){
+function log(source,text){
   const p =
     document.createElement("p");
 
@@ -255,9 +232,49 @@ function addLog(
 }
 
 
-function renderResponse(text){
+function loadVoices(){
 
-  replyEl.textContent = "";
+  voices =
+    speechSynthesis.getVoices();
+
+  voiceSelect.innerHTML = "";
+
+  const preferred =
+    voices.filter(v =>
+      /en-US|en-GB|en-AU|en-CA/i
+        .test(v.lang)
+    );
+
+  const list =
+    preferred.length
+      ? preferred
+      : voices;
+
+  list.forEach(v => {
+
+    const option =
+      document.createElement("option");
+
+    option.value =
+      String(voices.indexOf(v));
+
+    option.textContent =
+      v.name + " — " + v.lang;
+
+    voiceSelect.appendChild(option);
+  });
+}
+
+
+loadVoices();
+
+speechSynthesis.onvoiceschanged =
+  loadVoices;
+
+
+function render(text){
+
+  reply.textContent = "";
 
   const parts =
     String(text).split(
@@ -271,7 +288,13 @@ function renderResponse(text){
       part.endsWith("```")
     ){
 
+      const pre =
+        document.createElement("pre");
+
       const code =
+        document.createElement("code");
+
+      code.textContent =
         part
           .replace(
             /^```[^\n]*\n?/,
@@ -282,16 +305,8 @@ function renderResponse(text){
             ""
           );
 
-      const pre =
-        document.createElement("pre");
-
-      const codeEl =
-        document.createElement("code");
-
-      codeEl.textContent = code;
-
-      pre.appendChild(codeEl);
-      replyEl.appendChild(pre);
+      pre.appendChild(code);
+      reply.appendChild(pre);
 
     }else if(part.trim()){
 
@@ -300,126 +315,199 @@ function renderResponse(text){
 
       span.textContent = part;
 
-      replyEl.appendChild(span);
+      reply.appendChild(span);
     }
   }
 }
 
 
+function speechText(text){
+
+  return String(text)
+
+    .replace(
+      /```[\s\S]*?```/g,
+      "I've outputted the code for you."
+    )
+
+    .replace(
+      /\[([^\]]+)\]\([^)]*\)/g,
+      "$1"
+    )
+
+    .replace(
+      /[*_~`#>]/g,
+      ""
+    )
+
+    .replace(
+      /\bOrbitOS\b/gi,
+      "Orbit O S"
+    )
+
+    .replace(
+      /\bOrbit OS\b/gi,
+      "Orbit O S"
+    )
+
+    .replace(
+      /\bAPI\b/gi,
+      "A P I"
+    )
+
+    .replace(
+      /\bJSON\b/gi,
+      "J S O N"
+    )
+
+    .replace(
+      /\bHTML\b/gi,
+      "H T M L"
+    )
+
+    .replace(
+      /\bCSS\b/gi,
+      "C S S"
+    )
+
+    .replace(
+      /\bPWA\b/gi,
+      "P W A"
+    )
+
+    .replace(
+      /\bURL\b/gi,
+      "U R L"
+    )
+
+    .replace(
+      /\bUI\b/gi,
+      "U I"
+    )
+
+    .replace(
+      /\bUX\b/gi,
+      "U X"
+    )
+
+    .replace(
+      /\bOS\b/gi,
+      "O S"
+    )
+
+    .replace(
+      /\bAI\b/gi,
+      "A I"
+    )
+
+    .replace(
+      /\s+/g,
+      " "
+    )
+
+    .trim();
+}
+
+
+function speak(text){
+
+  return new Promise(resolve => {
+
+    const clean =
+      speechText(text);
+
+    if(!clean){
+      resolve();
+      return;
+    }
+
+    speechSynthesis.cancel();
+
+    const utterance =
+      new SpeechSynthesisUtterance(
+        clean
+      );
+
+    const available =
+      speechSynthesis.getVoices();
+
+    const index =
+      Number(
+        voiceSelect.value
+      );
+
+    if(available[index]){
+      utterance.voice =
+        available[index];
+    }
+
+    /*
+     * Slightly conversational.
+     * AURA's actual personality comes
+     * from OpenRouter's response.
+     */
+    utterance.rate = .94;
+    utterance.pitch = .98;
+    utterance.volume = 1;
+
+    speaking = true;
+
+    setStatus(
+      "Speaking",
+      true
+    );
+
+    utterance.onend = () => {
+      speaking = false;
+      resolve();
+    };
+
+    utterance.onerror = () => {
+      speaking = false;
+      resolve();
+    };
+
+    speechSynthesis.speak(
+      utterance
+    );
+  });
+}
+
+
 async function getSession(){
 
-  const {
+  let {
     data:{session}
   } =
-    await client.auth.getSession();
+    await db.auth.getSession();
 
   if(session){
     return session;
   }
 
-  const {
-    data,
-    error
-  } =
-    await client.auth.signInAnonymously();
+  const result =
+    await db.auth.signInAnonymously();
 
-  if(error){
-    throw error;
+  if(result.error){
+    throw result.error;
   }
 
-  return data.session;
+  return result.data.session;
 }
 
 
-async function playAudio(
-  base64,
-  type
-){
-
-  if(!base64){
-    throw new Error(
-      "AURA returned no voice audio."
-    );
-  }
-
-  const binary =
-    atob(base64);
-
-  const bytes =
-    new Uint8Array(
-      binary.length
-    );
-
-  for(
-    let i = 0;
-    i < binary.length;
-    i++
-  ){
-    bytes[i] =
-      binary.charCodeAt(i);
-  }
-
-  const blob =
-    new Blob(
-      [bytes],
-      {
-        type:
-          type ||
-          "audio/mpeg"
-      }
-    );
-
-  const url =
-    URL.createObjectURL(blob);
-
-  const audio =
-    new Audio(url);
-
-  speaking = true;
-
-  setStatus(
-    "Speaking",
-    true
-  );
-
-  try{
-
-    await audio.play();
-
-    await new Promise(
-      resolve => {
-
-        audio.onended =
-          resolve;
-
-        audio.onerror =
-          resolve;
-      }
-    );
-
-  }finally{
-
-    URL.revokeObjectURL(url);
-
-    speaking = false;
-  }
-}
-
-
-async function askAURA(
-  message
-){
+async function askAURA(text){
 
   if(
     busy ||
     speaking ||
-    !message.trim()
+    !text.trim()
   ){
     return;
   }
 
   busy = true;
-  waitingForWake = false;
+  waiting = false;
 
   clearTimeout(wakeTimer);
 
@@ -432,14 +520,14 @@ async function askAURA(
     true
   );
 
-  heardEl.textContent =
-    "You: " + message;
+  heard.textContent =
+    "You: " + text;
 
-  replyEl.textContent = "";
+  reply.textContent = "";
 
-  addLog(
+  log(
     "YOU",
-    message
+    text
   );
 
   try{
@@ -449,7 +537,7 @@ async function askAURA(
 
     const response =
       await fetch(
-        AURA_FUNCTION,
+        AURA_URL,
         {
           method:"POST",
 
@@ -466,7 +554,7 @@ async function askAURA(
           },
 
           body:JSON.stringify({
-            message:message
+            message:text
           })
         }
       );
@@ -490,42 +578,37 @@ async function askAURA(
       );
     }
 
-    if(data.text){
+    if(!data.text){
 
-      renderResponse(
-        data.text
-      );
-
-      addLog(
-        "AURA",
-        data.text
+      throw new Error(
+        "AURA returned no response."
       );
     }
 
-    if(data.voice?.name){
+    render(data.text);
 
-      voiceStatus.textContent =
-        "ElevenLabs: " +
-        data.voice.name;
-    }
+    log(
+      "AURA",
+      data.text
+    );
 
-    await playAudio(
-      data.audio,
-      data.audioType
+    await speak(
+      data.spoken ||
+      data.text
     );
 
   }catch(error){
 
-    setStatus(
-      "Error"
-    );
-
-    replyEl.textContent =
+    reply.textContent =
       error.message;
 
-    addLog(
+    log(
       "ERROR",
       error.message
+    );
+
+    setStatus(
+      "Error"
     );
 
   }finally{
@@ -533,11 +616,11 @@ async function askAURA(
     busy = false;
 
     if(
-      constantListening &&
+      listening &&
       !speaking
     ){
 
-      waitingForWake = true;
+      waiting = true;
 
       setStatus(
         "Listening",
@@ -549,7 +632,7 @@ async function askAURA(
         250
       );
 
-    }else if(!constantListening){
+    }else if(!listening){
 
       setStatus(
         "Ready"
@@ -559,23 +642,37 @@ async function askAURA(
 }
 
 
-function processSpeech(
-  transcript
-){
+function processSpeech(text){
 
-  const text =
-    transcript.trim();
+  text =
+    text.trim();
 
-  if(!text){
+  if(
+    !text ||
+    busy ||
+    speaking
+  ){
     return;
   }
 
-  if(!waitingForWake){
+  /*
+   * Once AURA has been activated,
+   * the next sentence is the command.
+   */
+  if(!waiting){
 
     askAURA(text);
     return;
   }
 
+  /*
+   * Supported wake phrases:
+   *
+   * AURA
+   * Hey AURA
+   * Yo AURA
+   * Okay AURA
+   */
   const match =
     text.match(
       /^(?:(?:hey|yo|okay|ok)\s+)?aura\b[\s,:-]*(.*)$/i
@@ -585,10 +682,10 @@ function processSpeech(
     return;
   }
 
+  waiting = false;
+
   const command =
     match[1].trim();
-
-  waitingForWake = false;
 
   if(command){
 
@@ -596,7 +693,7 @@ function processSpeech(
 
   }else{
 
-    heardEl.textContent =
+    heard.textContent =
       "AURA is listening…";
 
     setStatus(
@@ -610,17 +707,19 @@ function processSpeech(
 
     wakeTimer =
       setTimeout(
-        ()=>{
+        () => {
+
           if(
             !busy &&
             !speaking
           ){
 
-            waitingForWake = true;
+            waiting = true;
 
-            heardEl.textContent =
+            heard.textContent =
               "Say “AURA” to get my attention.";
           }
+
         },
         5000
       );
@@ -631,7 +730,7 @@ function processSpeech(
 function startListening(){
 
   if(
-    !constantListening ||
+    !listening ||
     busy ||
     speaking ||
     !recognition
@@ -643,6 +742,11 @@ function startListening(){
     recognition.start();
   }catch(_){}
 }
+
+
+const Recognition =
+  window.SpeechRecognition ||
+  window.webkitSpeechRecognition;
 
 
 if(!Recognition){
@@ -662,13 +766,14 @@ if(!Recognition){
   recognition.interimResults = true;
   recognition.lang = "en-US";
 
-  recognition.onstart = ()=>{
+  recognition.onstart =
+    () => {
 
-    setStatus(
-      "Listening",
-      true
-    );
-  };
+      setStatus(
+        "Listening",
+        true
+      );
+    };
 
   recognition.onresult =
     event => {
@@ -704,7 +809,7 @@ if(!Recognition){
         !speaking
       ){
 
-        heardEl.textContent =
+        heard.textContent =
           interim;
       }
 
@@ -724,7 +829,7 @@ if(!Recognition){
         event.error === "service-not-allowed"
       ){
 
-        constantListening = false;
+        listening = false;
 
         listenBtn.textContent =
           "CONSTANT LISTENING: OFF";
@@ -740,7 +845,7 @@ if(!Recognition){
         return;
       }
 
-      if(constantListening){
+      if(listening){
 
         setTimeout(
           startListening,
@@ -749,34 +854,35 @@ if(!Recognition){
       }
     };
 
-  recognition.onend = ()=>{
+  recognition.onend =
+    () => {
 
-    if(
-      constantListening &&
-      !busy &&
-      !speaking
-    ){
+      if(
+        listening &&
+        !busy &&
+        !speaking
+      ){
 
-      setTimeout(
-        startListening,
-        200
-      );
-    }
-  };
+        setTimeout(
+          startListening,
+          200
+        );
+      }
+    };
 }
 
 
 listenBtn.onclick =
-  async()=>{
+  async () => {
 
-    if(!constantListening){
+    if(!listening){
 
       try{
 
         await getSession();
 
-        constantListening = true;
-        waitingForWake = true;
+        listening = true;
+        waiting = true;
 
         listenBtn.textContent =
           "CONSTANT LISTENING: ON";
@@ -785,7 +891,7 @@ listenBtn.onclick =
           "active"
         );
 
-        heardEl.textContent =
+        heard.textContent =
           "Say “AURA” to get my attention.";
 
         setStatus(
@@ -801,18 +907,22 @@ listenBtn.onclick =
           "Authentication failed"
         );
 
-        addLog(
-          "ERROR",
+        log(
+          "AUTH",
           error.message
         );
       }
 
     }else{
 
-      constantListening = false;
-      waitingForWake = true;
+      listening = false;
+      waiting = true;
 
-      clearTimeout(wakeTimer);
+      speechSynthesis.cancel();
+
+      clearTimeout(
+        wakeTimer
+      );
 
       try{
         recognition?.stop();
@@ -829,7 +939,7 @@ listenBtn.onclick =
         "Ready"
       );
 
-      heardEl.textContent =
+      heard.textContent =
         "Say “AURA” to get my attention.";
     }
   };
@@ -837,7 +947,7 @@ listenBtn.onclick =
 
 getSession().catch(
   error =>
-    addLog(
+    log(
       "AUTH",
       error.message
     )

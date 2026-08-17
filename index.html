@@ -10,6 +10,7 @@
 
 <style>
 *{box-sizing:border-box}
+
 body{
   margin:0;
   min-height:100vh;
@@ -19,19 +20,23 @@ body{
   color:#e7e9ed;
   font:15px system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif
 }
+
 main{width:min(92vw,680px)}
+
 header{
   display:flex;
   justify-content:space-between;
   align-items:center;
   margin-bottom:28px
 }
+
 h1{
   margin:0;
   font-size:18px;
   font-weight:600;
   letter-spacing:.16em
 }
+
 #state{
   display:flex;
   align-items:center;
@@ -39,29 +44,35 @@ h1{
   color:#858b96;
   font-size:13px
 }
+
 #dot{
   width:7px;
   height:7px;
   border-radius:50%;
   background:#4d525b
 }
+
 #dot.on{background:#8aa2ff}
+
 #conversation{
   padding:20px 0;
   border-top:1px solid #1d2026;
   border-bottom:1px solid #1d2026
 }
+
 #heard{
   min-height:22px;
   margin-bottom:14px;
   color:#858b96
 }
+
 #reply{
   min-height:50px;
   line-height:1.65;
   white-space:pre-wrap;
   overflow-wrap:anywhere
 }
+
 #reply pre{
   margin:16px 0 0;
   padding:14px;
@@ -71,12 +82,14 @@ h1{
   background:#111318;
   font:13px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace
 }
+
 .controls{
   display:flex;
   gap:10px;
   flex-wrap:wrap;
   margin-top:20px
 }
+
 button,select{
   padding:10px 14px;
   border:1px solid #30343c;
@@ -85,12 +98,24 @@ button,select{
   color:#e7e9ed;
   font:inherit
 }
+
 button{cursor:pointer}
-button:hover,select:hover{background:#181b21}
+
+button:hover,
+select:hover{
+  background:#181b21
+}
+
 button.active{
   border-color:#536cae;
   background:#151b2b
 }
+
+select{
+  min-width:230px;
+  cursor:pointer
+}
+
 .customization{
   margin-top:14px;
   padding:14px;
@@ -98,15 +123,27 @@ button.active{
   border-radius:7px;
   background:#0e1014
 }
+
 .customization label{
-  display:flex;
+  display:grid;
+  grid-template-columns:70px 1fr 45px;
   align-items:center;
   gap:12px;
-  margin:10px 0;
+  margin:12px 0;
   color:#858b96;
   font-size:13px
 }
-.customization input[type=range]{flex:1}
+
+.customization input[type=range]{
+  width:100%
+}
+
+.value{
+  text-align:right;
+  color:#aeb4bf;
+  font-variant-numeric:tabular-nums
+}
+
 #log{
   max-height:140px;
   margin-top:20px;
@@ -114,56 +151,142 @@ button.active{
   color:#686f7b;
   font-size:12px
 }
+
 #log p{margin:5px 0}
+
+.disabled{
+  opacity:.45;
+}
+
+small{
+  color:#686f7b;
+  display:block;
+  margin-top:8px
+}
 </style>
 </head>
 
 <body>
+
 <main>
 
 <header>
   <h1>AURA</h1>
+
   <div id="state">
     <span id="dot"></span>
     <span id="status">Ready</span>
   </div>
 </header>
 
+
 <section id="conversation">
-  <div id="heard">Say “AURA” to get my attention.</div>
+
+  <div id="heard">
+    Say “AURA” to get my attention.
+  </div>
+
   <div id="reply"></div>
+
 </section>
 
+
 <div class="controls">
-  <button id="listen">CONSTANT LISTENING: OFF</button>
-  <button id="autoVoice" class="active">AUTO VOICE: ON</button>
-  <select id="voice" aria-label="Voice"></select>
+
+  <button id="listen">
+    CONSTANT LISTENING: OFF
+  </button>
+
+  <button
+    id="autoVoice"
+    class="active"
+    type="button"
+  >
+    AUTO VOICE: ON
+  </button>
+
+  <select
+    id="voice"
+    aria-label="Voice"
+  ></select>
+
 </div>
+
 
 <div class="customization">
-  <label>
-    Rate
-    <input id="rate" type="range" min=".75" max="1.15" step=".01" value=".94">
-  </label>
 
   <label>
-    Pitch
-    <input id="pitch" type="range" min=".60" max="1.40" step=".01" value=".98">
+    <span>Rate</span>
+
+    <input
+      id="rate"
+      type="range"
+      min=".75"
+      max="1.15"
+      step=".01"
+      value=".94"
+    >
+
+    <span
+      id="rateValue"
+      class="value"
+    >.94</span>
   </label>
 
+
   <label>
-    Volume
-    <input id="volume" type="range" min=".70" max="1" step=".01" value="1">
+    <span>Pitch</span>
+
+    <input
+      id="pitch"
+      type="range"
+      min=".60"
+      max="1.40"
+      step=".01"
+      value=".98"
+    >
+
+    <span
+      id="pitchValue"
+      class="value"
+    >.98</span>
   </label>
+
+
+  <label>
+    <span>Volume</span>
+
+    <input
+      id="volume"
+      type="range"
+      min=".70"
+      max="1"
+      step=".01"
+      value="1"
+    >
+
+    <span
+      id="volumeValue"
+      class="value"
+    >1.00</span>
+  </label>
+
+  <small id="voiceMode">
+    Automatic voice direction is enabled.
+  </small>
+
 </div>
+
 
 <div id="log"></div>
 
 </main>
 
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
+
 const SUPABASE_URL =
   "https://tvxugmumfvgnvjacwwfz.supabase.co";
 
@@ -174,206 +297,675 @@ const AURA_URL =
   SUPABASE_URL + "/functions/v1/aura-v2";
 
 
-const statusEl = document.getElementById("status");
-const dot = document.getElementById("dot");
-const heard = document.getElementById("heard");
-const reply = document.getElementById("reply");
-const logEl = document.getElementById("log");
-const listenBtn = document.getElementById("listen");
-const autoVoiceBtn = document.getElementById("autoVoice");
-const voiceSelect = document.getElementById("voice");
-const rateControl = document.getElementById("rate");
-const pitchControl = document.getElementById("pitch");
-const volumeControl = document.getElementById("volume");
+const statusEl =
+  document.getElementById("status");
+
+const dot =
+  document.getElementById("dot");
+
+const heard =
+  document.getElementById("heard");
+
+const reply =
+  document.getElementById("reply");
+
+const logEl =
+  document.getElementById("log");
+
+const listenBtn =
+  document.getElementById("listen");
+
+const autoVoiceBtn =
+  document.getElementById("autoVoice");
+
+const voiceSelect =
+  document.getElementById("voice");
+
+const rateControl =
+  document.getElementById("rate");
+
+const pitchControl =
+  document.getElementById("pitch");
+
+const volumeControl =
+  document.getElementById("volume");
+
+const rateValue =
+  document.getElementById("rateValue");
+
+const pitchValue =
+  document.getElementById("pitchValue");
+
+const volumeValue =
+  document.getElementById("volumeValue");
+
+const voiceMode =
+  document.getElementById("voiceMode");
+
 
 let recognition = null;
+
 let listening = false;
+
 let waiting = true;
+
 let busy = false;
+
 let speaking = false;
+
 let wakeTimer = null;
+
 let voices = [];
 
+
+/*
+ * This is deliberately kept locally.
+ * It gives AURA short-term conversational
+ * memory without another database table.
+ */
 const conversation = [];
 
+
 const preferences = {
-  automaticVoice:true,
-  rate:.94,
-  pitch:.98,
-  volume:1
+  automaticVoice: true,
+  rate: .94,
+  pitch: .98,
+  volume: 1
 };
 
 
-function setStatus(text,active=false){
-  statusEl.textContent=text;
-  dot.classList.toggle("on",active);
+/* -------------------------
+   UI STATE
+------------------------- */
+
+function setStatus(
+  text,
+  active = false
+){
+
+  statusEl.textContent =
+    text;
+
+  dot.classList.toggle(
+    "on",
+    active
+  );
 }
 
 
-function log(source,text){
-  const p=document.createElement("p");
-  p.textContent=source+": "+text;
+function log(
+  source,
+  text
+){
+
+  const p =
+    document.createElement(
+      "p"
+    );
+
+  p.textContent =
+    source +
+    ": " +
+    text;
+
   logEl.prepend(p);
 }
 
 
-function clamp(value,min,max){
-  return Math.min(max,Math.max(min,value));
+function clamp(
+  value,
+  min,
+  max
+){
+
+  return Math.min(
+    max,
+    Math.max(
+      min,
+      value
+    )
+  );
+}
+
+
+/* -------------------------
+   VOICE LOADING
+------------------------- */
+
+function getVoices(){
+
+  return speechSynthesis
+    .getVoices()
+    .filter(
+      voice =>
+        voice &&
+        voice.name
+    );
 }
 
 
 function loadVoices(){
-  voices=speechSynthesis.getVoices();
 
-  voiceSelect.innerHTML="";
+  voices =
+    getVoices();
 
-  const preferred=voices.filter(v =>
-    /en-US|en-GB|en-AU|en-CA/i.test(v.lang)
+
+  voiceSelect.innerHTML =
+    "";
+
+
+  if(!voices.length){
+
+    const option =
+      document.createElement(
+        "option"
+      );
+
+    option.textContent =
+      "Browser voices unavailable";
+
+    option.value = "";
+
+    voiceSelect.appendChild(
+      option
+    );
+
+    return;
+  }
+
+
+  /*
+   * Prefer English voices, but don't
+   * hide other voices if the browser
+   * provides them.
+   */
+  const english =
+    voices.filter(
+      voice =>
+        /^en(-|_)/i.test(
+          voice.lang
+        )
+    );
+
+
+  const list =
+    english.length
+      ? english
+      : voices;
+
+
+  list.forEach(
+    voice => {
+
+      const option =
+        document.createElement(
+          "option"
+        );
+
+      option.value =
+        String(
+          voices.indexOf(
+            voice
+          )
+        );
+
+      option.textContent =
+        voice.name +
+        " — " +
+        voice.lang;
+
+      voiceSelect.appendChild(
+        option
+      );
+    }
   );
 
-  const list=preferred.length ? preferred : voices;
 
-  list.forEach(voice=>{
-    const option=document.createElement("option");
-    option.value=String(voices.indexOf(voice));
-    option.textContent=voice.name+" — "+voice.lang;
-    voiceSelect.appendChild(option);
-  });
+  /*
+   * Pick a reasonable voice initially.
+   * Microsoft Zira / Google US are usually
+   * more natural than the old default voice.
+   */
+  const preferred =
+    list.findIndex(
+      voice =>
+        /zira|google us english/i
+          .test(voice.name)
+    );
+
+
+  if(preferred >= 0){
+
+    const actualIndex =
+      voices.indexOf(
+        list[preferred]
+      );
+
+    voiceSelect.value =
+      String(actualIndex);
+  }
 }
 
 
 loadVoices();
-speechSynthesis.onvoiceschanged=loadVoices;
 
+speechSynthesis.onvoiceschanged =
+  loadVoices;
+
+
+/*
+ * Some browsers populate voices slightly
+ * after page load.
+ */
+setTimeout(
+  loadVoices,
+  300
+);
+
+setTimeout(
+  loadVoices,
+  1000
+);
+
+
+/* -------------------------
+   RENDERING
+------------------------- */
 
 function render(text){
-  reply.textContent="";
 
-  const parts=String(text).split(/(```[\s\S]*?```)/g);
+  reply.textContent =
+    "";
 
-  for(const part of parts){
+  const parts =
+    String(text)
+      .split(
+        /(```[\s\S]*?```)/g
+      );
 
-    if(part.startsWith("```") && part.endsWith("```")){
 
-      const pre=document.createElement("pre");
-      const code=document.createElement("code");
+  for(
+    const part of parts
+  ){
 
-      code.textContent=part
-        .replace(/^```[^\n]*\n?/,"")
-        .replace(/```$/,"");
+    if(
+      part.startsWith("```") &&
+      part.endsWith("```")
+    ){
 
-      pre.appendChild(code);
-      reply.appendChild(pre);
+      const pre =
+        document.createElement(
+          "pre"
+        );
 
-    }else if(part.trim()){
+      const code =
+        document.createElement(
+          "code"
+        );
 
-      const span=document.createElement("span");
-      span.textContent=part;
-      reply.appendChild(span);
+
+      code.textContent =
+        part
+          .replace(
+            /^```[^\n]*\n?/,
+            ""
+          )
+          .replace(
+            /```$/,
+            ""
+          );
+
+
+      pre.appendChild(
+        code
+      );
+
+      reply.appendChild(
+        pre
+      );
+
+
+    }else if(
+      part.trim()
+    ){
+
+      const span =
+        document.createElement(
+          "span"
+        );
+
+      span.textContent =
+        part;
+
+      reply.appendChild(
+        span
+      );
     }
   }
 }
 
 
-function speechText(text){
+/* -------------------------
+   SPEECH NORMALIZATION
+------------------------- */
+
+function speechText(
+  text
+){
 
   return String(text)
-    .replace(/```[\s\S]*?```/g,"I've outputted the code for you.")
-    .replace(/\[([^\]]+)\]\([^)]*\)/g,"$1")
-    .replace(/[*_~`#>]/g,"")
-    .replace(/\bOrbitOS\b/gi,"Orbit O S")
-    .replace(/\bOrbit OS\b/gi,"Orbit O S")
-    .replace(/\bAPI\b/gi,"A P I")
-    .replace(/\bJSON\b/gi,"J S O N")
-    .replace(/\bHTML\b/gi,"H T M L")
-    .replace(/\bCSS\b/gi,"C S S")
-    .replace(/\bPWA\b/gi,"P W A")
-    .replace(/\bURL\b/gi,"U R L")
-    .replace(/\bUI\b/gi,"U I")
-    .replace(/\bUX\b/gi,"U X")
-    .replace(/\bOS\b/gi,"O S")
-    .replace(/\bAI\b/gi,"A I")
-    .replace(/\bCPU\b/gi,"C P U")
-    .replace(/\bGPU\b/gi,"G P U")
-    .replace(/\bRAM\b/gi,"R A M")
-    .replace(/—/g," … ")
-    .replace(/\.{3}/g," … ")
-    .replace(/\s+/g," ")
+
+    /*
+     * Never read code aloud.
+     */
+    .replace(
+      /```[\s\S]*?```/g,
+      "I've outputted the code for you."
+    )
+
+    .replace(
+      /\[([^\]]+)\]\([^)]*\)/g,
+      "$1"
+    )
+
+    .replace(
+      /[*_~`#>]/g,
+      ""
+    )
+
+    /*
+     * Acronyms.
+     */
+    .replace(
+      /\bOrbitOS\b/gi,
+      "Orbit O S"
+    )
+
+    .replace(
+      /\bOrbit OS\b/gi,
+      "Orbit O S"
+    )
+
+    .replace(
+      /\bAPI\b/gi,
+      "A P I"
+    )
+
+    .replace(
+      /\bJSON\b/gi,
+      "J S O N"
+    )
+
+    .replace(
+      /\bHTML\b/gi,
+      "H T M L"
+    )
+
+    .replace(
+      /\bCSS\b/gi,
+      "C S S"
+    )
+
+    .replace(
+      /\bPWA\b/gi,
+      "P W A"
+    )
+
+    .replace(
+      /\bURL\b/gi,
+      "U R L"
+    )
+
+    .replace(
+      /\bUI\b/gi,
+      "U I"
+    )
+
+    .replace(
+      /\bUX\b/gi,
+      "U X"
+    )
+
+    .replace(
+      /\bOS\b/gi,
+      "O S"
+    )
+
+    .replace(
+      /\bAI\b/gi,
+      "A I"
+    )
+
+    .replace(
+      /\bCPU\b/gi,
+      "C P U"
+    )
+
+    .replace(
+      /\bGPU\b/gi,
+      "G P U"
+    )
+
+    .replace(
+      /\bRAM\b/gi,
+      "R A M"
+    )
+
+    /*
+     * Natural pauses.
+     */
+    .replace(
+      /—/g,
+      " … "
+    )
+
+    .replace(
+      /\.{3}/g,
+      " … "
+    )
+
+    .replace(
+      /\s+/g,
+      " "
+    )
+
     .trim();
 }
 
 
-function speak(text,automaticPitch){
+/* -------------------------
+   SPEECH
+------------------------- */
 
-  return new Promise(resolve=>{
+function speak(
+  text,
+  automaticPitch
+){
 
-    const clean=speechText(text);
+  return new Promise(
+    resolve => {
 
-    if(!clean){
-      resolve();
-      return;
-    }
+      const clean =
+        speechText(text);
 
-    speechSynthesis.cancel();
 
-    const utterance=
-      new SpeechSynthesisUtterance(clean);
+      if(!clean){
 
-    const available=
-      speechSynthesis.getVoices();
+        resolve();
 
-    const voiceIndex=
-      Number(voiceSelect.value);
-
-    if(available[voiceIndex]){
-      utterance.voice=available[voiceIndex];
-    }
-
-    let rate=preferences.rate;
-    let pitch=preferences.pitch;
-    let volume=preferences.volume;
-
-    if(preferences.automaticVoice && automaticPitch){
-
-      if(Number.isFinite(Number(automaticPitch.rate))){
-        rate=clamp(Number(automaticPitch.rate),.75,1.15);
+        return;
       }
 
-      if(Number.isFinite(Number(automaticPitch.pitch))){
-        pitch=clamp(Number(automaticPitch.pitch),.60,1.40);
+
+      /*
+       * Cancel anything still queued.
+       */
+      speechSynthesis.cancel();
+
+
+      const utterance =
+        new SpeechSynthesisUtterance(
+          clean
+        );
+
+
+      /*
+       * ALWAYS resolve the currently
+       * selected browser voice.
+       */
+      const available =
+        getVoices();
+
+      const selectedIndex =
+        Number(
+          voiceSelect.value
+        );
+
+
+      if(
+        Number.isInteger(
+          selectedIndex
+        ) &&
+        available[selectedIndex]
+      ){
+
+        utterance.voice =
+          available[selectedIndex];
       }
 
-      if(Number.isFinite(Number(automaticPitch.volume))){
-        volume=clamp(Number(automaticPitch.volume),.70,1);
+
+      /*
+       * Start with manual controls.
+       */
+      let rate =
+        preferences.rate;
+
+      let pitch =
+        preferences.pitch;
+
+      let volume =
+        preferences.volume;
+
+
+      /*
+       * PITCH_KEY may override those
+       * values ONLY when Auto Voice is ON.
+       */
+      if(
+        preferences.automaticVoice &&
+        automaticPitch
+      ){
+
+        if(
+          Number.isFinite(
+            Number(
+              automaticPitch.rate
+            )
+          )
+        ){
+
+          rate =
+            clamp(
+              Number(
+                automaticPitch.rate
+              ),
+              .75,
+              1.15
+            );
+        }
+
+
+        if(
+          Number.isFinite(
+            Number(
+              automaticPitch.pitch
+            )
+          )
+        ){
+
+          pitch =
+            clamp(
+              Number(
+                automaticPitch.pitch
+              ),
+              .60,
+              1.40
+            );
+        }
+
+
+        if(
+          Number.isFinite(
+            Number(
+              automaticPitch.volume
+            )
+          )
+        ){
+
+          volume =
+            clamp(
+              Number(
+                automaticPitch.volume
+              ),
+              .70,
+              1
+            );
+        }
       }
+
+
+      utterance.rate =
+        rate;
+
+      utterance.pitch =
+        pitch;
+
+      utterance.volume =
+        volume;
+
+
+      speaking =
+        true;
+
+
+      setStatus(
+        "Speaking",
+        true
+      );
+
+
+      utterance.onend =
+        () => {
+
+          speaking =
+            false;
+
+          resolve();
+        };
+
+
+      utterance.onerror =
+        () => {
+
+          speaking =
+            false;
+
+          resolve();
+        };
+
+
+      speechSynthesis.speak(
+        utterance
+      );
     }
-
-    utterance.rate=rate;
-    utterance.pitch=pitch;
-    utterance.volume=volume;
-
-    speaking=true;
-
-    setStatus("Speaking",true);
-
-    utterance.onend=()=>{
-      speaking=false;
-      resolve();
-    };
-
-    utterance.onerror=()=>{
-      speaking=false;
-      resolve();
-    };
-
-    speechSynthesis.speak(utterance);
-  });
+  );
 }
 
 
-/*
- * This was missing from the previous frontend.
- */
+/* -------------------------
+   CONSTANT LISTENING
+------------------------- */
+
 function startListening(){
 
   if(
@@ -382,8 +974,10 @@ function startListening(){
     busy ||
     speaking
   ){
+
     return;
   }
+
 
   try{
 
@@ -391,92 +985,146 @@ function startListening(){
 
   }catch(error){
 
+    /*
+     * Chrome throws if recognition is
+     * already running. That's harmless.
+     */
     if(
-      !String(error.message)
+      !String(
+        error.message
+      )
         .toLowerCase()
-        .includes("already started")
+        .includes(
+          "already started"
+        )
     ){
 
-      setTimeout(()=>{
-        if(
-          listening &&
-          !busy &&
-          !speaking
-        ){
-          startListening();
-        }
-      },300);
+      setTimeout(
+        () => {
+
+          if(
+            listening &&
+            !busy &&
+            !speaking
+          ){
+
+            startListening();
+          }
+
+        },
+        300
+      );
     }
   }
 }
 
 
-async function askAURA(text){
+/* -------------------------
+   AURA
+------------------------- */
+
+async function askAURA(
+  text
+){
 
   if(
     busy ||
     speaking ||
     !text.trim()
   ){
+
     return;
   }
 
-  busy=true;
-  waiting=false;
 
-  clearTimeout(wakeTimer);
+  busy =
+    true;
+
+  waiting =
+    false;
+
+
+  clearTimeout(
+    wakeTimer
+  );
+
 
   try{
     recognition?.stop();
   }catch(_){}
 
-  setStatus("Thinking",true);
 
-  heard.textContent="You: "+text;
-  reply.textContent="";
+  setStatus(
+    "Thinking",
+    true
+  );
 
-  log("YOU",text);
+
+  heard.textContent =
+    "You: " +
+    text;
+
+  reply.textContent =
+    "";
+
+
+  log(
+    "YOU",
+    text
+  );
+
 
   try{
 
-    const response=await fetch(
-      AURA_URL,
-      {
-        method:"POST",
+    const response =
+      await fetch(
+        AURA_URL,
+        {
+          method:"POST",
 
-        headers:{
-          "Content-Type":"application/json",
+          headers:{
+            "Content-Type":
+              "application/json",
 
-          /*
-           * The function is JWT protected,
-           * but the frontend doesn't need
-           * anonymous authentication.
-           *
-           * The Supabase publishable key is
-           * sent as the API key.
-           */
-          "apikey":SUPABASE_KEY
-        },
+            "apikey":
+              SUPABASE_KEY
+          },
 
-        body:JSON.stringify({
-          message:text,
-          history:conversation.slice(-12),
-          preferences
-        })
-      }
-    );
+          body:JSON.stringify({
+
+            message:text,
+
+            history:
+              conversation
+                .slice(-12),
+
+            preferences
+
+          })
+        }
+      );
 
 
     let data;
 
+
     try{
-      data=await response.json();
+
+      data =
+        await response.json();
+
     }catch(_){
-      throw new Error("AURA returned an invalid response.");
+
+      throw new Error(
+        "AURA returned an invalid response."
+      );
     }
 
 
-    if(!response.ok){
+    if(
+      !response.ok
+    ){
+
       throw new Error(
         data.error ||
         "AURA request failed."
@@ -484,7 +1132,10 @@ async function askAURA(text){
     }
 
 
-    if(!data.text){
+    if(
+      !data.text
+    ){
+
       throw new Error(
         "AURA returned no response."
       );
@@ -492,116 +1143,176 @@ async function askAURA(text){
 
 
     conversation.push(
+
       {
         role:"user",
         content:text
       },
+
       {
         role:"assistant",
         content:data.text
       }
+
     );
 
 
-    if(conversation.length>24){
+    if(
+      conversation.length >
+      24
+    ){
+
       conversation.splice(
         0,
-        conversation.length-24
+        conversation.length - 24
       );
     }
 
 
-    render(data.text);
+    render(
+      data.text
+    );
 
-    log("AURA",data.text);
+
+    log(
+      "AURA",
+      data.text
+    );
 
 
     /*
-     * The primary AI response is already
-     * available. PITCH_KEY only changes
-     * delivery characteristics.
+     * Voice starts as soon as the AI
+     * response has arrived.
      */
     await speak(
-      data.spoken || data.text,
+      data.spoken ||
+      data.text,
       data.pitch
     );
 
 
   }catch(error){
 
-    reply.textContent=error.message;
+    reply.textContent =
+      error.message;
 
-    log("ERROR",error.message);
+    log(
+      "ERROR",
+      error.message
+    );
 
-    setStatus("Error");
+    setStatus(
+      "Error"
+    );
+
 
   }finally{
 
-    busy=false;
+    busy =
+      false;
 
-    if(listening && !speaking){
 
-      waiting=true;
+    if(
+      listening &&
+      !speaking
+    ){
 
-      setStatus("Listening",true);
+      waiting =
+        true;
+
+      setStatus(
+        "Listening",
+        true
+      );
+
 
       setTimeout(
         startListening,
         200
       );
 
-    }else if(!listening){
 
-      setStatus("Ready");
+    }else if(
+      !listening
+    ){
+
+      setStatus(
+        "Ready"
+      );
     }
   }
 }
 
 
-function processSpeech(text){
+/* -------------------------
+   WAKE WORD
+------------------------- */
 
-  text=text.trim();
+function processSpeech(
+  text
+){
+
+  text =
+    text.trim();
+
 
   if(
     !text ||
     busy ||
     speaking
   ){
+
     return;
   }
 
 
+  /*
+   * Once AURA has been activated,
+   * the next sentence is the command.
+   */
   if(!waiting){
 
-    askAURA(text);
+    askAURA(
+      text
+    );
+
     return;
   }
 
 
-  const match=text.match(
-    /^(?:(?:hey|yo|okay|ok)\s+)?aura\b[\s,:-]*(.*)$/i
-  );
+  const match =
+    text.match(
+      /^(?:(?:hey|yo|okay|ok)\s+)?aura\b[\s,:-]*(.*)$/i
+    );
 
 
   if(!match){
+
     return;
   }
 
 
-  waiting=false;
+  waiting =
+    false;
 
-  const command=match[1].trim();
+
+  const command =
+    match[1].trim();
 
 
   if(command){
 
-    askAURA(command);
+    askAURA(
+      command
+    );
+
     return;
   }
 
 
-  heard.textContent=
+  heard.textContent =
     "AURA is listening…";
+
 
   setStatus(
     "Listening",
@@ -609,22 +1320,38 @@ function processSpeech(text){
   );
 
 
-  clearTimeout(wakeTimer);
+  clearTimeout(
+    wakeTimer
+  );
 
 
-  wakeTimer=setTimeout(()=>{
-    if(!busy && !speaking){
+  wakeTimer =
+    setTimeout(
+      () => {
 
-      waiting=true;
+        if(
+          !busy &&
+          !speaking
+        ){
 
-      heard.textContent=
-        "Say “AURA” to get my attention.";
-    }
-  },5000);
+          waiting =
+            true;
+
+          heard.textContent =
+            "Say “AURA” to get my attention.";
+        }
+
+      },
+      5000
+    );
 }
 
 
-const Recognition=
+/* -------------------------
+   SPEECH RECOGNITION
+------------------------- */
+
+const Recognition =
   window.SpeechRecognition ||
   window.webkitSpeechRecognition;
 
@@ -635,204 +1362,468 @@ if(!Recognition){
     "Speech recognition unavailable"
   );
 
-  listenBtn.disabled=true;
+  listenBtn.disabled =
+    true;
 
 }else{
 
-  recognition=new Recognition();
-
-  recognition.continuous=true;
-  recognition.interimResults=true;
-  recognition.lang="en-US";
+  recognition =
+    new Recognition();
 
 
-  recognition.onstart=()=>{
-    setStatus("Listening",true);
-  };
+  recognition.continuous =
+    true;
+
+  recognition.interimResults =
+    true;
+
+  recognition.lang =
+    "en-US";
 
 
-  recognition.onresult=event=>{
-
-    let finalText="";
-    let interim="";
-
-
-    for(
-      let i=event.resultIndex;
-      i<event.results.length;
-      i++
-    ){
-
-      const result=event.results[i];
-
-      if(result.isFinal){
-        finalText+=result[0].transcript;
-      }else{
-        interim+=result[0].transcript;
-      }
-    }
-
-
-    if(
-      interim &&
-      !busy &&
-      !speaking
-    ){
-      heard.textContent=interim;
-    }
-
-
-    if(finalText){
-      processSpeech(finalText);
-    }
-  };
-
-
-  recognition.onerror=event=>{
-
-    if(
-      event.error==="not-allowed" ||
-      event.error==="service-not-allowed"
-    ){
-
-      listening=false;
-
-      listenBtn.textContent=
-        "CONSTANT LISTENING: OFF";
-
-      listenBtn.classList.remove("active");
+  recognition.onstart =
+    () => {
 
       setStatus(
-        "Microphone permission required"
+        "Listening",
+        true
       );
-
-      return;
-    }
+    };
 
 
-    if(listening){
-      setTimeout(
-        startListening,
-        500
-      );
-    }
-  };
+  recognition.onresult =
+    event => {
+
+      let finalText =
+        "";
+
+      let interim =
+        "";
 
 
-  recognition.onend=()=>{
+      for(
+        let i =
+          event.resultIndex;
 
-    if(
-      listening &&
-      !busy &&
-      !speaking
-    ){
-      setTimeout(
-        startListening,
-        200
-      );
-    }
-  };
+        i <
+          event.results.length;
+
+        i++
+      ){
+
+        const result =
+          event.results[i];
+
+
+        if(
+          result.isFinal
+        ){
+
+          finalText +=
+            result[0].transcript;
+
+        }else{
+
+          interim +=
+            result[0].transcript;
+        }
+      }
+
+
+      if(
+        interim &&
+        !busy &&
+        !speaking
+      ){
+
+        heard.textContent =
+          interim;
+      }
+
+
+      if(finalText){
+
+        processSpeech(
+          finalText
+        );
+      }
+    };
+
+
+  recognition.onerror =
+    event => {
+
+      if(
+        event.error ===
+          "not-allowed" ||
+
+        event.error ===
+          "service-not-allowed"
+      ){
+
+        listening =
+          false;
+
+
+        listenBtn.textContent =
+          "CONSTANT LISTENING: OFF";
+
+
+        listenBtn.classList.remove(
+          "active"
+        );
+
+
+        setStatus(
+          "Microphone permission required"
+        );
+
+
+        return;
+      }
+
+
+      if(listening){
+
+        setTimeout(
+          startListening,
+          500
+        );
+      }
+    };
+
+
+  recognition.onend =
+    () => {
+
+      if(
+        listening &&
+        !busy &&
+        !speaking
+      ){
+
+        setTimeout(
+          startListening,
+          200
+        );
+      }
+    };
 }
 
 
-listenBtn.onclick=()=>{
+/* -------------------------
+   CONSTANT LISTENING BUTTON
+------------------------- */
 
-  if(!listening){
+listenBtn.onclick =
+  () => {
 
-    listening=true;
-    waiting=true;
+    if(!listening){
 
-    listenBtn.textContent=
-      "CONSTANT LISTENING: ON";
+      listening =
+        true;
 
-    listenBtn.classList.add("active");
-
-    heard.textContent=
-      "Say “AURA” to get my attention.";
-
-    setStatus(
-      "Listening",
-      true
-    );
-
-    startListening();
-
-  }else{
-
-    listening=false;
-    waiting=true;
-
-    speechSynthesis.cancel();
-
-    clearTimeout(wakeTimer);
-
-    try{
-      recognition?.stop();
-    }catch(_){}
-
-    listenBtn.textContent=
-      "CONSTANT LISTENING: OFF";
-
-    listenBtn.classList.remove("active");
-
-    setStatus("Ready");
-
-    heard.textContent=
-      "Say “AURA” to get my attention.";
-  }
-};
+      waiting =
+        true;
 
 
-autoVoiceBtn.onclick=()=>{
+      listenBtn.textContent =
+        "CONSTANT LISTENING: ON";
 
-  preferences.automaticVoice=
-    !preferences.automaticVoice;
 
-  autoVoiceBtn.textContent=
-    "AUTO VOICE: " +
-    (
+      listenBtn.classList.add(
+        "active"
+      );
+
+
+      heard.textContent =
+        "Say “AURA” to get my attention.";
+
+
+      setStatus(
+        "Listening",
+        true
+      );
+
+
+      startListening();
+
+
+    }else{
+
+      listening =
+        false;
+
+      waiting =
+        true;
+
+
+      speechSynthesis.cancel();
+
+
+      clearTimeout(
+        wakeTimer
+      );
+
+
+      try{
+        recognition?.stop();
+      }catch(_){}
+
+
+      listenBtn.textContent =
+        "CONSTANT LISTENING: OFF";
+
+
+      listenBtn.classList.remove(
+        "active"
+      );
+
+
+      setStatus(
+        "Ready"
+      );
+
+
+      heard.textContent =
+        "Say “AURA” to get my attention.";
+    }
+  };
+
+
+/* -------------------------
+   AUTO VOICE
+------------------------- */
+
+autoVoiceBtn.onclick =
+  () => {
+
+    preferences.automaticVoice =
+      !preferences.automaticVoice;
+
+
+    autoVoiceBtn.textContent =
+      "AUTO VOICE: " +
+      (
+        preferences.automaticVoice
+          ? "ON"
+          : "OFF"
+      );
+
+
+    autoVoiceBtn.classList.toggle(
+      "active",
       preferences.automaticVoice
-        ? "ON"
-        : "OFF"
     );
 
-  autoVoiceBtn.classList.toggle(
-    "active",
-    preferences.automaticVoice
-  );
-};
+
+    /*
+     * Actually disable/enable the
+     * manual controls visually.
+     */
+    const disabled =
+      preferences.automaticVoice;
 
 
-rateControl.oninput=()=>{
-  preferences.rate=
-    Number(rateControl.value);
-};
+    rateControl.disabled =
+      disabled;
+
+    pitchControl.disabled =
+      disabled;
+
+    volumeControl.disabled =
+      disabled;
 
 
-pitchControl.oninput=()=>{
-  preferences.pitch=
-    Number(pitchControl.value);
-};
+    rateControl.parentElement.classList.toggle(
+      "disabled",
+      disabled
+    );
+
+    pitchControl.parentElement.classList.toggle(
+      "disabled",
+      disabled
+    );
+
+    volumeControl.parentElement.classList.toggle(
+      "disabled",
+      disabled
+    );
 
 
-volumeControl.oninput=()=>{
-  preferences.volume=
-    Number(volumeControl.value);
-};
+    voiceMode.textContent =
+      disabled
+        ? "Automatic voice direction is enabled."
+        : "Manual voice controls are enabled.";
 
 
-if("serviceWorker" in navigator){
+    /*
+     * If AURA is currently speaking,
+     * stop it so the next response uses
+     * the newly selected mode.
+     */
+    if(speaking){
+
+      speechSynthesis.cancel();
+
+      speaking =
+        false;
+
+      setStatus(
+        listening
+          ? "Listening"
+          : "Ready",
+        listening
+      );
+    }
+  };
+
+
+/* -------------------------
+   VOICE SELECTOR
+------------------------- */
+
+voiceSelect.onchange =
+  () => {
+
+    const selected =
+      getVoices()[
+        Number(
+          voiceSelect.value
+        )
+      ];
+
+
+    if(selected){
+
+      log(
+        "VOICE",
+        selected.name +
+        " (" +
+        selected.lang +
+        ")"
+      );
+
+
+      /*
+       * Don't interrupt a sentence.
+       * The selected voice will be used
+       * on the next response.
+       */
+    }
+  };
+
+
+/* -------------------------
+   MANUAL CONTROLS
+------------------------- */
+
+function updateRate(){
+
+  preferences.rate =
+    clamp(
+      Number(
+        rateControl.value
+      ),
+      .75,
+      1.15
+    );
+
+
+  rateValue.textContent =
+    preferences.rate.toFixed(2);
+}
+
+
+function updatePitch(){
+
+  preferences.pitch =
+    clamp(
+      Number(
+        pitchControl.value
+      ),
+      .60,
+      1.40
+    );
+
+
+  pitchValue.textContent =
+    preferences.pitch.toFixed(2);
+}
+
+
+function updateVolume(){
+
+  preferences.volume =
+    clamp(
+      Number(
+        volumeControl.value
+      ),
+      .70,
+      1
+    );
+
+
+  volumeValue.textContent =
+    preferences.volume.toFixed(2);
+}
+
+
+rateControl.addEventListener(
+  "input",
+  updateRate
+);
+
+pitchControl.addEventListener(
+  "input",
+  updatePitch
+);
+
+volumeControl.addEventListener(
+  "input",
+  updateVolume
+);
+
+
+updateRate();
+updatePitch();
+updateVolume();
+
+
+/*
+ * Auto Voice starts ON, so the sliders
+ * are disabled until the user turns it OFF.
+ */
+rateControl.disabled =
+  true;
+
+pitchControl.disabled =
+  true;
+
+volumeControl.disabled =
+  true;
+
+
+/* -------------------------
+   PWA
+------------------------- */
+
+if(
+  "serviceWorker" in navigator
+){
 
   navigator.serviceWorker
     .register("./sw.js")
-    .catch(error=>{
-      log(
-        "PWA",
-        error.message
-      );
-    });
+    .catch(
+      error =>
+        log(
+          "PWA",
+          error.message
+        )
+    );
 }
 
 </script>
+
 </body>
 </html>

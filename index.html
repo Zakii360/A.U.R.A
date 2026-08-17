@@ -1,970 +1,881 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#0b0c0f">
-  <link rel="manifest" href="manifest.json">
-  <title>AURA</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b0c0f">
+<link rel="manifest" href="manifest.json">
+<title>A.U.R.A</title>
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+<style>
+*{box-sizing:border-box}
 
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background: #0b0c0f;
-      color: #e7e9ed;
-      font: 15px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      display: grid;
-      place-items: center;
-    }
+body{
+  margin:0;
+  min-height:100vh;
+  background:#0b0c0f;
+  color:#e7e9ed;
+  font:15px system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  display:grid;
+  place-items:center
+}
 
-    main {
-      width: min(92vw, 620px);
-    }
+main{
+  width:min(92vw,620px)
+}
 
-    header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 28px;
-    }
+header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:28px
+}
 
-    h1 {
-      margin: 0;
-      font-size: 18px;
-      font-weight: 600;
-      letter-spacing: .14em;
-    }
+h1{
+  margin:0;
+  font-size:18px;
+  font-weight:600;
+  letter-spacing:.14em
+}
 
-    #state {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: #858b96;
-      font-size: 13px;
-    }
+#state{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  color:#858b96;
+  font-size:13px
+}
 
-    #indicator {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: #555b66;
-    }
+#indicator{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:#555b66
+}
 
-    #indicator.active {
-      background: #8aa2ff;
-    }
+#indicator.active{
+  background:#8aa2ff
+}
 
-    #conversation {
-      border-top: 1px solid #1d2026;
-      border-bottom: 1px solid #1d2026;
-      padding: 20px 0;
-    }
+#conversation{
+  border-top:1px solid #1d2026;
+  border-bottom:1px solid #1d2026;
+  padding:20px 0
+}
 
-    #heard {
-      color: #858b96;
-      min-height: 22px;
-      margin-bottom: 14px;
-    }
+#heard{
+  color:#858b96;
+  min-height:22px;
+  margin-bottom:14px
+}
 
-    #reply {
-      color: #e7e9ed;
-      line-height: 1.6;
-      min-height: 50px;
-      white-space: pre-wrap;
-      overflow-wrap: anywhere;
-    }
+#reply{
+  min-height:50px;
+  line-height:1.6;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere
+}
 
-    #reply pre {
-      margin: 16px 0 0;
-      padding: 14px;
-      overflow-x: auto;
-      background: #111318;
-      border: 1px solid #20242c;
-      border-radius: 6px;
-      font: 13px/1.55 ui-monospace, SFMono-Regular, Consolas, monospace;
-      text-align: left;
-    }
+#reply pre{
+  margin:16px 0 0;
+  padding:14px;
+  overflow:auto;
+  background:#111318;
+  border:1px solid #20242c;
+  border-radius:6px;
+  font:13px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace
+}
 
-    #reply code {
-      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
-    }
+footer{
+  margin-top:20px;
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap
+}
 
-    footer {
-      margin-top: 20px;
-    }
+button,select{
+  appearance:none;
+  border:1px solid #30343c;
+  background:#121419;
+  color:#e7e9ed;
+  border-radius:6px;
+  padding:10px 14px;
+  font:inherit
+}
 
-    button {
-      appearance: none;
-      border: 1px solid #30343c;
-      background: #121419;
-      color: #e7e9ed;
-      border-radius: 6px;
-      padding: 10px 14px;
-      font: inherit;
-      cursor: pointer;
-    }
+button{
+  cursor:pointer
+}
 
-    button:hover {
-      background: #181b21;
-    }
+button:hover,
+select:hover{
+  background:#181b21
+}
 
-    button.active {
-      border-color: #536cae;
-      background: #151b2b;
-    }
+button.active{
+  border-color:#536cae;
+  background:#151b2b
+}
 
-    button:disabled {
-      opacity: .5;
-      cursor: default;
-    }
+#log{
+  margin-top:24px;
+  max-height:130px;
+  overflow:auto;
+  color:#686f7b;
+  font-size:12px
+}
 
-    #log {
-      margin-top: 24px;
-      max-height: 130px;
-      overflow-y: auto;
-      color: #686f7b;
-      font-size: 12px;
-    }
-
-    #log p {
-      margin: 5px 0;
-    }
-  </style>
+#log p{
+  margin:5px 0
+}
+</style>
 </head>
 
 <body>
 
 <main>
 
-  <header>
-    <h1>AURA</h1>
+<header>
+  <h1>AURA</h1>
 
-    <div id="state">
-      <span id="indicator"></span>
-      <span id="status">Ready</span>
-    </div>
-  </header>
+  <div id="state">
+    <span id="indicator"></span>
+    <span id="status">Ready</span>
+  </div>
+</header>
 
-  <section id="conversation">
+<section id="conversation">
 
-    <div id="heard">
-      Say “AURA” to get my attention.
-    </div>
+  <div id="heard">
+    Say “AURA” to get my attention.
+  </div>
 
-    <div id="reply"></div>
+  <div id="reply"></div>
 
-  </section>
+</section>
 
-  <footer>
-    <button id="listen">
-      CONSTANT LISTENING: OFF
-    </button>
-  </footer>
+<footer>
 
-  <div id="log"></div>
+  <button id="listen">
+    CONSTANT LISTENING: OFF
+  </button>
+
+  <select id="voice">
+
+    <option value="21m00Tcm4TlvDq8ikWAM">
+      Rachel
+    </option>
+
+    <option value="EXAVITQu4vr4xnSDxMaL">
+      Bella
+    </option>
+
+    <option value="ErXwobaYiN019PkySvjV">
+      Antoni
+    </option>
+
+    <option value="TxGEqnHWrfWFTfGW9XjX">
+      Josh
+    </option>
+
+    <option value="VR6AewLTigWG4xSOukaG">
+      Arnold
+    </option>
+
+  </select>
+
+</footer>
+
+<div id="log"></div>
 
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("./sw.js").catch(() => {});
-  }
 
-  const SUPABASE_URL =
-    "https://tvxugmumfvgnvjacwwfz.supabase.co";
+if("serviceWorker" in navigator){
+  navigator.serviceWorker
+    .register("./sw.js")
+    .catch(()=>{});
+}
 
-  const SUPABASE_KEY =
-    "sb_publishable_1mPqnw9hx5Vm0O_o4O_fsg_96YAhDuY";
+const SUPABASE_URL =
+  "https://tvxugmumfvgnvjacwwfz.supabase.co";
 
-  const AURA_FUNCTION =
-    SUPABASE_URL + "/functions/v1/aura-v2";
+const SUPABASE_KEY =
+  "sb_publishable_1mPqnw9hx5Vm0O_o4O_fsg_96YAhDuY";
 
-  const TTS_FUNCTION =
-    SUPABASE_URL + "/functions/v1/tts";
+const AURA_FUNCTION =
+  SUPABASE_URL +
+  "/functions/v1/aura-v2";
 
-  /*
-   * Rachel is an ElevenLabs premade voice.
-   * The actual ElevenLabs API key stays inside Supabase.
-   */
-  const TTS_VOICE =
-    "21m00Tcm4TlvDq8ikWAM";
+const VOICE_FUNCTION =
+  SUPABASE_URL +
+  "/functions/v1/aura-voice";
 
-  const auraClient =
-    window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_KEY
-    );
+const auraClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
 
-  const statusElement =
-    document.getElementById("status");
+const statusElement =
+  document.getElementById("status");
 
-  const indicatorElement =
-    document.getElementById("indicator");
+const indicatorElement =
+  document.getElementById("indicator");
 
-  const heardElement =
-    document.getElementById("heard");
+const heardElement =
+  document.getElementById("heard");
 
-  const replyElement =
-    document.getElementById("reply");
+const replyElement =
+  document.getElementById("reply");
 
-  const logElement =
-    document.getElementById("log");
+const logElement =
+  document.getElementById("log");
 
-  const listenButton =
-    document.getElementById("listen");
+const listenButton =
+  document.getElementById("listen");
 
-  const SpeechRecognition =
-    window.SpeechRecognition ||
-    window.webkitSpeechRecognition;
+const voiceSelect =
+  document.getElementById("voice");
 
-  let recognition = null;
-  let constantListening = false;
-  let busy = false;
-  let speaking = false;
+const SpeechRecognition =
+  window.SpeechRecognition ||
+  window.webkitSpeechRecognition;
 
-  let waitingForCommand = false;
-  let wakeTimer = null;
+let recognition=null;
+let constantListening=false;
+let busy=false;
+let speaking=false;
+let waitingForCommand=false;
+let wakeTimer=null;
 
-  function setStatus(text, active = false) {
-    statusElement.textContent = text;
 
-    indicatorElement.classList.toggle(
+function setStatus(
+  text,
+  active=false
+){
+
+  statusElement.textContent=text;
+
+  indicatorElement
+    .classList
+    .toggle(
       "active",
       active
     );
-  }
+}
 
-  function addLog(source, text) {
-    const entry =
-      document.createElement("p");
 
-    entry.textContent =
-      source + ": " + text;
+function addLog(
+  source,
+  text
+){
 
-    logElement.prepend(entry);
-  }
+  const entry =
+    document.createElement(
+      "p"
+    );
 
-  function renderResponse(text) {
-    replyElement.textContent = "";
+  entry.textContent =
+    source +
+    ": " +
+    text;
 
-    /*
-     * Keep normal text as text, but render fenced
-     * code visually so AURA doesn't have to speak it.
-     */
+  logElement.prepend(
+    entry
+  );
+}
 
-    const parts =
-      text.split(/(```[\s\S]*?```)/g);
 
-    for (const part of parts) {
+function renderResponse(
+  text
+){
 
-      if (
-        part.startsWith("```") &&
-        part.endsWith("```")
-      ) {
+  replyElement.textContent="";
 
-        const code =
-          part
-            .replace(/^```[^\n]*\n?/, "")
-            .replace(/```$/, "");
+  const parts =
+    text.split(
+      /(```[\s\S]*?```)/g
+    );
 
-        const pre =
-          document.createElement("pre");
+  for(
+    const part of parts
+  ){
 
-        const codeElement =
-          document.createElement("code");
+    if(
+      part.startsWith("```") &&
+      part.endsWith("```")
+    ){
 
-        codeElement.textContent =
-          code;
-
-        pre.appendChild(
-          codeElement
-        );
-
-        replyElement.appendChild(
-          pre
-        );
-
-      } else if (part.trim()) {
-
-        const textNode =
-          document.createElement("span");
-
-        textNode.textContent =
-          part;
-
-        replyElement.appendChild(
-          textNode
-        );
-      }
-    }
-  }
-
-  async function browserSpeak(text) {
-
-    if (
-      !("speechSynthesis" in window)
-    ) {
-      return;
-    }
-
-    return new Promise(resolve => {
-
-      speechSynthesis.cancel();
-
-      const utterance =
-        new SpeechSynthesisUtterance(
-          text
-        );
-
-      const voices =
-        speechSynthesis.getVoices();
-
-      const preferred =
-        voices.find(v =>
-          /en-GB/i.test(v.lang) &&
-          /natural|neural|premium|google|microsoft/i.test(v.name)
-        ) ||
-        voices.find(v =>
-          /en-US/i.test(v.lang) &&
-          /natural|neural|premium|google|microsoft/i.test(v.name)
-        ) ||
-        voices.find(v =>
-          /^en/i.test(v.lang)
-        );
-
-      if (preferred) {
-        utterance.voice =
-          preferred;
-      }
-
-      utterance.rate = 0.96;
-      utterance.pitch = 0.96;
-      utterance.volume = 1;
-
-      utterance.onend = () => {
-        speaking = false;
-        resolve();
-      };
-
-      utterance.onerror = () => {
-        speaking = false;
-        resolve();
-      };
-
-      speaking = true;
-
-      speechSynthesis.speak(
-        utterance
-      );
-    });
-  }
-
-  async function speak(text) {
-
-    if (!text) return;
-
-    speaking = true;
-
-    try {
-
-      const {
-        data: { session }
-      } =
-        await auraClient.auth.getSession();
-
-      if (session) {
-
-        const response =
-          await fetch(
-            TTS_FUNCTION,
-            {
-              method: "POST",
-
-              headers: {
-                "Content-Type":
-                  "application/json",
-
-                "Authorization":
-                  "Bearer " +
-                  session.access_token
-              },
-
-              body: JSON.stringify({
-                text: text,
-                voiceId: TTS_VOICE
-              })
-            }
+      const code =
+        part
+          .replace(
+            /^```[^\n]*\n?/,
+            ""
+          )
+          .replace(
+            /```$/,
+            ""
           );
 
-        if (response.ok) {
+      const pre =
+        document.createElement(
+          "pre"
+        );
 
-          const audioBlob =
-            await response.blob();
+      const codeElement =
+        document.createElement(
+          "code"
+        );
 
-          const audioUrl =
-            URL.createObjectURL(
-              audioBlob
-            );
+      codeElement.textContent =
+        code;
 
-          const audio =
-            new Audio(audioUrl);
-
-          await new Promise(resolve => {
-
-            audio.onended = () => {
-              URL.revokeObjectURL(
-                audioUrl
-              );
-
-              speaking = false;
-              resolve();
-            };
-
-            audio.onerror = () => {
-              URL.revokeObjectURL(
-                audioUrl
-              );
-
-              resolve();
-            };
-
-            audio.play().catch(() =>
-              resolve()
-            );
-          });
-
-          return;
-        }
-      }
-
-    } catch (_) {
-      /*
-       * If neural TTS isn't available,
-       * fall back to the browser voice.
-       */
-    }
-
-    await browserSpeak(text);
-  }
-
-  async function authenticate() {
-
-    const {
-      data: { session }
-    } =
-      await auraClient.auth.getSession();
-
-    if (session) {
-      return session;
-    }
-
-    const {
-      data,
-      error
-    } =
-      await auraClient.auth.signInAnonymously();
-
-    if (error) {
-
-      setStatus(
-        "Authentication failed"
+      pre.appendChild(
+        codeElement
       );
 
-      addLog(
-        "ERROR",
-        error.message
+      replyElement.appendChild(
+        pre
       );
 
-      return null;
-    }
+    }else if(
+      part.trim()
+    ){
 
-    return data.session;
+      const span =
+        document.createElement(
+          "span"
+        );
+
+      span.textContent =
+        part;
+
+      replyElement.appendChild(
+        span
+      );
+    }
+  }
+}
+
+
+async function authenticate(){
+
+  const {
+    data:{
+      session
+    }
+  } =
+    await auraClient
+      .auth
+      .getSession();
+
+  if(session){
+    return session;
   }
 
-  async function askAura(message) {
+  const {
+    data,
+    error
+  } =
+    await auraClient
+      .auth
+      .signInAnonymously();
 
-    if (
-      busy ||
-      !message
-    ) {
-      return;
-    }
-
-    busy = true;
-
-    waitingForCommand = false;
-
-    clearTimeout(
-      wakeTimer
-    );
-
-    try {
-      recognition.stop();
-    } catch (_) {}
+  if(error){
 
     setStatus(
-      "Thinking"
+      "Authentication failed"
     );
-
-    heardElement.textContent =
-      "You: " + message;
-
-    replyElement.textContent =
-      "";
 
     addLog(
-      "YOU",
-      message
+      "ERROR",
+      error.message
     );
 
-    try {
+    return null;
+  }
 
-      const {
-        data: { session }
-      } =
-        await auraClient.auth.getSession();
+  return data.session;
+}
 
-      if (!session) {
-        throw new Error(
-          "No authenticated Supabase session."
-        );
+
+async function speak(
+  text
+){
+
+  if(!text){
+    return;
+  }
+
+  speaking=true;
+
+  setStatus(
+    "Speaking",
+    true
+  );
+
+  try{
+
+    const {
+      data:{
+        session
       }
+    } =
+      await auraClient
+        .auth
+        .getSession();
 
-      const response =
-        await fetch(
-          AURA_FUNCTION,
-          {
-            method: "POST",
+    if(!session){
+      throw new Error(
+        "No authenticated session."
+      );
+    }
 
-            headers: {
-              "Content-Type":
-                "application/json",
+    const response =
+      await fetch(
+        VOICE_FUNCTION,
+        {
+          method:"POST",
 
-              "Authorization":
-                "Bearer " +
-                session.access_token
-            },
+          headers:{
+            "Content-Type":
+              "application/json",
 
-            body: JSON.stringify({
-              message
-            })
-          }
-        );
+            "Authorization":
+              "Bearer " +
+              session.access_token
+          },
 
-      const data =
-        await response.json();
+          body:JSON.stringify({
 
-      if (!response.ok) {
-        throw new Error(
-          data.error ||
-          "AURA request failed."
-        );
-      }
+            text,
 
-      renderResponse(
-        data.text
+            voiceId:
+              voiceSelect.value
+
+          })
+        }
       );
 
-      addLog(
-        "AURA",
-        data.text
+    if(!response.ok){
+
+      let message =
+        "ElevenLabs request failed.";
+
+      try{
+
+        const data =
+          await response.json();
+
+        if(data.error){
+          message =
+            data.error;
+        }
+
+      }catch(_){}
+
+      throw new Error(
+        message
       );
+    }
+
+    const blob =
+      await response.blob();
+
+    const url =
+      URL.createObjectURL(
+        blob
+      );
+
+    const audio =
+      new Audio(url);
+
+    audio.preload="auto";
+
+    await new Promise(
+      (resolve,reject)=>{
+
+        audio.onended=resolve;
+        audio.onerror=reject;
+
+        audio
+          .play()
+          .catch(reject);
+      }
+    );
+
+    URL.revokeObjectURL(
+      url
+    );
+
+  }catch(error){
+
+    addLog(
+      "VOICE",
+      error.message
+    );
+
+    /*
+     * No automatic browser TTS fallback.
+     * That was causing unnecessary delays.
+     */
+
+  }finally{
+
+    speaking=false;
+
+    if(
+      constantListening
+    ){
 
       setStatus(
-        "Speaking",
+        "Listening",
         true
       );
 
-      /*
-       * IMPORTANT:
-       * data.spoken is what AURA actually says.
-       * data.text can contain code.
-       */
-
-      await speak(
-        data.spoken ||
-        data.text
+      setTimeout(
+        startRecognition,
+        200
       );
 
-    } catch (error) {
+    }else{
 
       setStatus(
-        "Error"
+        "Ready"
       );
-
-      replyElement.textContent =
-        error.message;
-
-      addLog(
-        "ERROR",
-        error.message
-      );
-
-      await speak(
-        "I ran into a problem."
-      );
-
-    } finally {
-
-      busy = false;
-
-      if (
-        constantListening
-      ) {
-
-        setStatus(
-          "Listening",
-          true
-        );
-
-        setTimeout(
-          startRecognition,
-          250
-        );
-      }
     }
   }
+}
 
-  function wakeDetected(command) {
 
-    waitingForCommand =
-      true;
+async function askAura(
+  message
+){
 
+  if(
+    busy ||
+    !message
+  ){
+    return;
+  }
+
+  busy=true;
+  waitingForCommand=false;
+
+  clearTimeout(
+    wakeTimer
+  );
+
+  try{
+    recognition.stop();
+  }catch(_){}
+
+  setStatus(
+    "Thinking",
+    true
+  );
+
+  heardElement.textContent =
+    "You: " +
+    message;
+
+  replyElement.textContent="";
+
+  addLog(
+    "YOU",
+    message
+  );
+
+  try{
+
+    const {
+      data:{
+        session
+      }
+    } =
+      await auraClient
+        .auth
+        .getSession();
+
+    if(!session){
+      throw new Error(
+        "No authenticated session."
+      );
+    }
+
+    const response =
+      await fetch(
+        AURA_FUNCTION,
+        {
+          method:"POST",
+
+          headers:{
+            "Content-Type":
+              "application/json",
+
+            "Authorization":
+              "Bearer " +
+              session.access_token
+          },
+
+          body:JSON.stringify({
+            message
+          })
+        }
+      );
+
+    const data =
+      await response.json();
+
+    if(!response.ok){
+
+      throw new Error(
+        data.error ||
+        "AURA request failed."
+      );
+    }
+
+    renderResponse(
+      data.text
+    );
+
+    addLog(
+      "AURA",
+      data.text
+    );
+
+    await speak(
+      data.spoken ||
+      data.text
+    );
+
+  }catch(error){
+
+    setStatus(
+      "Error"
+    );
+
+    replyElement.textContent =
+      error.message;
+
+    addLog(
+      "ERROR",
+      error.message
+    );
+
+  }finally{
+
+    busy=false;
+
+    if(
+      constantListening &&
+      !speaking
+    ){
+
+      setTimeout(
+        startRecognition,
+        250
+      );
+    }
+  }
+}
+
+
+function wakeDetected(
+  command
+){
+
+  waitingForCommand=true;
+
+  clearTimeout(
+    wakeTimer
+  );
+
+  setStatus(
+    "Listening",
+    true
+  );
+
+  heardElement.textContent =
+    "AURA is listening…";
+
+  if(command){
+
+    askAura(
+      command
+    );
+
+    return;
+  }
+
+  wakeTimer =
+    setTimeout(
+      ()=>{
+        if(
+          waitingForCommand &&
+          !busy
+        ){
+
+          waitingForCommand=false;
+
+          heardElement.textContent =
+            "Still listening…";
+        }
+      },
+      2500
+    );
+}
+
+
+function processSpeech(
+  text,
+  isFinal
+){
+
+  if(
+    !text ||
+    speaking ||
+    busy ||
+    !isFinal
+  ){
+    return;
+  }
+
+  const normalized =
+    text.trim();
+
+  if(
+    waitingForCommand &&
+    !/^(?:hey|yo|okay|ok)?\s*aura\b/i
+      .test(normalized)
+  ){
+
+    wakeDetected(
+      normalized
+    );
+
+    return;
+  }
+
+  const match =
+    normalized.match(
+      /^(?:(?:hey|yo|okay|ok)\s+)?aura\b[\s,:-]*(.*)$/i
+    );
+
+  if(!match){
+    return;
+  }
+
+  wakeDetected(
+    match[1].trim()
+  );
+}
+
+
+function startRecognition(){
+
+  if(
+    !constantListening ||
+    !recognition ||
+    busy ||
+    speaking
+  ){
+    return;
+  }
+
+  try{
+    recognition.start();
+  }catch(_){}
+}
+
+
+if(!SpeechRecognition){
+
+  setStatus(
+    "Speech recognition unavailable"
+  );
+
+  listenButton.disabled=true;
+
+}else{
+
+  recognition =
+    new SpeechRecognition();
+
+  recognition.continuous=true;
+  recognition.interimResults=true;
+  recognition.lang="en-US";
+
+  recognition.onstart=()=>{
     setStatus(
       "Listening",
       true
     );
+  };
 
-    heardElement.textContent =
-      "AURA is listening…";
+  recognition.onresult=
+    event=>{
 
-    /*
-     * Don't immediately say "Yes?".
-     *
-     * This is what caused the annoying
-     * repeated YES responses.
-     */
+      let finalText="";
+      let interimText="";
 
-    if (command) {
+      for(
+        let i=event.resultIndex;
+        i<event.results.length;
+        i++
+      ){
 
-      askAura(command);
-      return;
-    }
+        const result =
+          event.results[i];
 
-    clearTimeout(
-      wakeTimer
-    );
+        if(
+          result.isFinal
+        ){
 
-    wakeTimer =
-      setTimeout(() => {
+          finalText +=
+            result[0]
+              .transcript;
 
-        if (
-          waitingForCommand &&
-          !busy
-        ) {
+        }else{
 
-          waitingForCommand =
-            false;
-
-          setStatus(
-            "Listening",
-            true
-          );
-
-          /*
-           * No unnecessary "Yes?".
-           * AURA simply waits.
-           */
-
-          startRecognition();
+          interimText +=
+            result[0]
+              .transcript;
         }
+      }
 
-      }, 2500);
-  }
+      if(
+        interimText &&
+        !busy &&
+        !speaking
+      ){
 
-  function processSpeech(text, isFinal) {
+        heardElement.textContent =
+          interimText;
+      }
 
-    if (
-      !text ||
-      speaking ||
-      busy ||
-      !isFinal
-    ) {
-      return;
-    }
+      if(finalText){
 
-    const normalized =
-      text.trim();
-
-    /*
-     * If AURA has already been woken
-     * and the next recognition result
-     * contains the command, use it.
-     */
-
-    if (
-      waitingForCommand &&
-      !/^(?:hey|yo|okay|ok)?\s*aura\b/i.test(
-        normalized
-      )
-    ) {
-
-      wakeDetected(
-        normalized
-      );
-
-      return;
-    }
-
-    const match =
-      normalized.match(
-        /^(?:(?:hey|yo|okay|ok)\s+)?aura\b[\s,:-]*(.*)$/i
-      );
-
-    if (!match) {
-      return;
-    }
-
-    const command =
-      match[1].trim();
-
-    wakeDetected(
-      command
-    );
-  }
-
-  function startRecognition() {
-
-    if (
-      !constantListening ||
-      !recognition ||
-      busy ||
-      speaking
-    ) {
-      return;
-    }
-
-    try {
-      recognition.start();
-    } catch (_) {}
-  }
-
-  if (!SpeechRecognition) {
-
-    setStatus(
-      "Speech recognition unavailable"
-    );
-
-    listenButton.disabled =
-      true;
-
-    addLog(
-      "ERROR",
-      "Speech recognition is unavailable in this browser."
-    );
-
-  } else {
-
-    recognition =
-      new SpeechRecognition();
-
-    recognition.continuous =
-      true;
-
-    recognition.interimResults =
-      true;
-
-    recognition.lang =
-      "en-US";
-
-    recognition.onstart =
-      () => {
-
-        setStatus(
-          "Listening",
+        processSpeech(
+          finalText,
           true
         );
-      };
+      }
+    };
 
-    recognition.onresult =
-      event => {
+  recognition.onerror =
+    event=>{
 
-        let finalText = "";
-        let interimText = "";
+      if(
+        event.error==="not-allowed" ||
+        event.error==="service-not-allowed"
+      ){
 
-        for (
-          let i =
-            event.resultIndex;
-
-          i <
-            event.results.length;
-
-          i++
-        ) {
-
-          const result =
-            event.results[i];
-
-          if (
-            result.isFinal
-          ) {
-
-            finalText +=
-              result[0].transcript;
-
-          } else {
-
-            interimText +=
-              result[0].transcript;
-          }
-        }
-
-        if (
-          interimText &&
-          !busy &&
-          !speaking
-        ) {
-
-          heardElement.textContent =
-            interimText;
-        }
-
-        if (finalText) {
-
-          processSpeech(
-            finalText,
-            true
-          );
-        }
-      };
-
-    recognition.onerror =
-      event => {
-
-        if (
-          event.error ===
-            "not-allowed" ||
-          event.error ===
-            "service-not-allowed"
-        ) {
-
-          constantListening =
-            false;
-
-          listenButton.textContent =
-            "CONSTANT LISTENING: OFF";
-
-          listenButton.classList.remove(
-            "active"
-          );
-
-          setStatus(
-            "Microphone permission required"
-          );
-
-          return;
-        }
-
-        if (
-          event.error ===
-          "audio-capture"
-        ) {
-
-          setStatus(
-            "Microphone unavailable"
-          );
-
-          return;
-        }
-
-        if (
-          constantListening &&
-          !busy &&
-          !speaking
-        ) {
-
-          setTimeout(
-            startRecognition,
-            500
-          );
-        }
-      };
-
-    recognition.onend =
-      () => {
-
-        if (
-          constantListening &&
-          !busy &&
-          !speaking
-        ) {
-
-          setTimeout(
-            startRecognition,
-            200
-          );
-        }
-      };
-  }
-
-  listenButton.onclick =
-    async () => {
-
-      if (
-        !constantListening
-      ) {
-
-        const session =
-          await authenticate();
-
-        if (!session) {
-          return;
-        }
-
-        constantListening =
-          true;
-
-        listenButton.textContent =
-          "CONSTANT LISTENING: ON";
-
-        listenButton.classList.add(
-          "active"
-        );
-
-        setStatus(
-          "Listening",
-          true
-        );
-
-        startRecognition();
-
-      } else {
-
-        constantListening =
-          false;
-
-        waitingForCommand =
-          false;
-
-        clearTimeout(
-          wakeTimer
-        );
-
-        try {
-          recognition.stop();
-        } catch (_) {}
-
-        speechSynthesis.cancel();
-
-        speaking =
-          false;
+        constantListening=false;
 
         listenButton.textContent =
           "CONSTANT LISTENING: OFF";
@@ -974,12 +885,97 @@
         );
 
         setStatus(
-          "Ready"
+          "Microphone permission required"
+        );
+
+        return;
+      }
+
+      if(constantListening){
+
+        setTimeout(
+          startRecognition,
+          500
         );
       }
     };
 
-  authenticate();
+  recognition.onend=()=>{
+
+    if(
+      constantListening &&
+      !busy &&
+      !speaking
+    ){
+
+      setTimeout(
+        startRecognition,
+        200
+      );
+    }
+  };
+}
+
+
+listenButton.onclick =
+  async()=>{
+
+    if(!constantListening){
+
+      const session =
+        await authenticate();
+
+      if(!session){
+        return;
+      }
+
+      constantListening=true;
+
+      listenButton.textContent =
+        "CONSTANT LISTENING: ON";
+
+      listenButton.classList.add(
+        "active"
+      );
+
+      setStatus(
+        "Listening",
+        true
+      );
+
+      startRecognition();
+
+    }else{
+
+      constantListening=false;
+      waitingForCommand=false;
+
+      clearTimeout(
+        wakeTimer
+      );
+
+      try{
+        recognition.stop();
+      }catch(_){}
+
+      speaking=false;
+
+      listenButton.textContent =
+        "CONSTANT LISTENING: OFF";
+
+      listenButton.classList.remove(
+        "active"
+      );
+
+      setStatus(
+        "Ready"
+      );
+    }
+  };
+
+
+authenticate();
+
 </script>
 
 </body>

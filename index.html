@@ -3,651 +3,404 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#06080c">
-<title>A.U.R.A</title>
+<meta name="theme-color" content="#0e0e0e">
+<title>AURA</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Didact+Gothic&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg: #06080c;
-  --s0: #0b0e14;
-  --s1: #0f1115;
-  --s2: #141720;
-  --border: #1c2030;
-  --border-hi: #2a3045;
-  --text: #c4c9d4;
-  --muted: #3e4554;
-  --dim: #252a38;
-  --accent: #c8922a;
-  --accent-lo: rgba(200,146,42,.07);
-  --red: #d95858;
-  --green: #4aae7f;
-  --mono: 'JetBrains Mono', ui-monospace, monospace;
-  --sans: system-ui, -apple-system, sans-serif;
-  --r: 4px;
+  --bg: #0e0e0e;
+  --surface: #161616;
+  --border: #242424;
+  --text: #d8d8d8;
+  --muted: #555;
+  --dim: #333;
+  --green: #5a9e6f;
+  --red: #a05050;
+  --f: 'Didact Gothic', sans-serif;
 }
 
-html, body { height: 100%; }
-
-body {
+html, body {
+  height: 100%;
   background: var(--bg);
   color: var(--text);
-  font: 13px/1.6 var(--sans);
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+  font-family: var(--f);
 }
 
-.layout {
+body {
   display: grid;
-  grid-template-columns: 220px 1fr;
-  flex: 1;
+  grid-template-columns: 200px 1fr;
   min-height: 100vh;
 }
 
-.sidebar {
-  background: var(--s0);
+aside {
+  background: var(--surface);
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  padding: 28px 0 20px;
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  overflow-y: auto;
-}
-
-.sidebar-top {
-  padding: 0 20px 24px;
-  border-bottom: 1px solid var(--border);
+  padding: 24px 16px;
+  gap: 24px;
 }
 
 .wordmark {
-  font: 500 11px/1 var(--mono);
-  letter-spacing: .18em;
-  color: var(--text);
-  margin-bottom: 4px;
-}
-
-.wordmark-full {
-  font: 300 9px/1 var(--mono);
-  letter-spacing: .10em;
-  color: var(--muted);
-}
-
-.sidebar-section {
-  padding: 16px 20px 0;
-}
-
-.section-label {
-  font: 400 9px/1 var(--mono);
-  letter-spacing: .14em;
+  font-size: 11px;
+  letter-spacing: .2em;
   color: var(--muted);
   text-transform: uppercase;
-  margin-bottom: 10px;
 }
 
-.connection-block {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+.section { display: flex; flex-direction: column; gap: 8px; }
+
+.label {
+  font-size: 10px;
+  letter-spacing: .1em;
+  color: var(--muted);
+  text-transform: uppercase;
 }
 
-.conn-input {
-  background: var(--s2);
+input, select, button { font-family: var(--f); }
+
+.field {
+  background: var(--bg);
   border: 1px solid var(--border);
-  border-radius: var(--r);
+  border-radius: 3px;
   color: var(--text);
-  font: 11px/1 var(--mono);
+  font-size: 12px;
   padding: 7px 9px;
   width: 100%;
   outline: none;
-  transition: border-color .15s;
 }
-.conn-input::placeholder { color: var(--muted); }
-.conn-input:focus { border-color: var(--accent); }
+.field::placeholder { color: var(--dim); }
+.field:focus { border-color: var(--muted); }
 
-.conn-btn {
-  background: var(--accent-lo);
-  border: 1px solid var(--accent);
-  border-radius: var(--r);
-  color: var(--accent);
-  font: 500 10px/1 var(--mono);
-  letter-spacing: .08em;
+.project-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.project-select {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--text);
+  font-size: 12px;
+  padding: 7px 9px;
+  flex: 1;
+  outline: none;
+  cursor: pointer;
+}
+.project-select option { background: #161616; }
+.project-select:disabled { opacity: .4; cursor: default; }
+
+.pip {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--dim);
+  flex-shrink: 0;
+  transition: background .3s;
+}
+.pip.live { background: var(--green); }
+.pip.err  { background: var(--red); }
+
+.btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--muted);
+  font-size: 11px;
   padding: 7px 10px;
   cursor: pointer;
   width: 100%;
-  text-align: center;
-  transition: background .15s;
+  text-align: left;
+  transition: color .15s, border-color .15s;
+  letter-spacing: .04em;
 }
-.conn-btn:hover { background: rgba(200,146,42,.14); }
-.conn-btn:disabled { opacity: .4; cursor: default; }
+.btn:hover { color: var(--text); border-color: var(--muted); }
+.btn.on { color: var(--text); border-color: var(--dim); }
+.btn:disabled { opacity: .3; cursor: default; }
 
-.conn-status {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font: 10px/1 var(--mono);
-  color: var(--muted);
-  padding-top: 2px;
-}
-
-.pip {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--dim);
-  flex-shrink: 0;
-  transition: background .25s;
-}
-.pip.live { background: var(--green); }
-.pip.error { background: var(--red); }
-.pip.thinking {
-  background: var(--accent);
-  animation: blink .9s ease-in-out infinite;
+.conn-note {
+  font-size: 11px;
+  color: var(--dim);
+  line-height: 1.5;
 }
 
-@keyframes blink { 0%,100% { opacity:.3; } 50% { opacity:1; } }
-
-.sidebar-divider {
-  border: none;
-  border-top: 1px solid var(--border);
-  margin: 16px 0;
-}
-
-.voice-section {
-  padding: 0 20px;
+aside .bottom {
+  margin-top: auto;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 
-.voice-row {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.voice-label {
-  font: 10px/1 var(--mono);
-  color: var(--muted);
-}
-
-.voice-select {
-  background: var(--s2);
+select.voice-sel {
+  background: var(--bg);
   border: 1px solid var(--border);
-  border-radius: var(--r);
+  border-radius: 3px;
   color: var(--text);
-  font: 11px/1 var(--mono);
+  font-size: 11px;
+  font-family: var(--f);
   padding: 6px 8px;
   width: 100%;
-  cursor: pointer;
   outline: none;
-  transition: border-color .15s;
+  cursor: pointer;
 }
-.voice-select:focus { border-color: var(--accent); }
-.voice-select option { background: #0f1115; }
+select.voice-sel option { background: #161616; }
 
-.slider-row {
-  display: grid;
-  grid-template-columns: 1fr 32px;
-  align-items: center;
-  gap: 8px;
-}
-
-.slider-row input[type=range] {
+main {
+  display: flex;
+  flex-direction: column;
+  padding: 40px 52px;
+  max-width: 740px;
   width: 100%;
-  height: 2px;
-  accent-color: var(--accent);
-  cursor: pointer;
-  background: var(--border);
-  border-radius: 2px;
-}
-.slider-row input:disabled { opacity: .25; cursor: default; }
-
-.slider-val {
-  font: 10px/1 var(--mono);
-  color: var(--muted);
-  text-align: right;
-  font-variant-numeric: tabular-nums;
 }
 
-.auto-toggle {
+.top-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  cursor: pointer;
-  gap: 8px;
+  margin-bottom: 48px;
 }
 
-.auto-toggle-label {
-  font: 10px/1 var(--mono);
+.status-text {
+  font-size: 11px;
+  letter-spacing: .08em;
   color: var(--muted);
 }
 
-.toggle {
-  width: 28px;
-  height: 15px;
-  background: var(--dim);
-  border-radius: 8px;
-  position: relative;
-  transition: background .2s;
-  flex-shrink: 0;
-  cursor: pointer;
-  border: none;
-  outline: none;
-}
-.toggle::after {
-  content: '';
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 11px;
-  height: 11px;
-  border-radius: 50%;
-  background: var(--muted);
-  transition: transform .2s, background .2s;
-}
-.toggle.on { background: var(--accent-lo); border: 1px solid var(--accent); }
-.toggle.on::after { transform: translateX(13px); background: var(--accent); }
-
-.sidebar-bottom {
-  margin-top: auto;
-  padding: 16px 20px 0;
-  border-top: 1px solid var(--border);
-}
-
-.log-label {
-  font: 9px/1 var(--mono);
-  letter-spacing: .12em;
-  color: var(--muted);
-  text-transform: uppercase;
-  margin-bottom: 8px;
-}
-
-.log {
-  max-height: 90px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.log-entry {
-  display: flex;
-  gap: 6px;
-  font: 10px/1.4 var(--mono);
-  color: var(--muted);
-}
-
-.log-tag { flex-shrink: 0; }
-.log-tag.you  { color: var(--border-hi); }
-.log-tag.aura { color: var(--accent); opacity: .6; }
-.log-tag.err  { color: var(--red); opacity: .7; }
-.log-msg { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-.main {
-  display: flex;
-  flex-direction: column;
-  padding: 40px 48px 40px;
-  max-width: 720px;
-}
-
-.main-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 32px;
-  gap: 16px;
-}
-
-.state-display {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.state-label {
-  font: 9px/1 var(--mono);
-  letter-spacing: .16em;
-  color: var(--muted);
-  text-transform: uppercase;
-}
-
-.state-value {
-  font: 400 13px/1 var(--mono);
-  color: var(--text);
-}
-
-.listen-btn {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  padding: 8px 14px;
+.mic-btn {
   background: transparent;
-  border: 1px solid var(--border-hi);
-  border-radius: var(--r);
+  border: 1px solid var(--border);
+  border-radius: 3px;
   color: var(--muted);
-  font: 500 10px/1 var(--mono);
-  letter-spacing: .10em;
+  font-size: 11px;
+  font-family: var(--f);
+  letter-spacing: .06em;
+  padding: 7px 14px;
   cursor: pointer;
-  transition: color .15s, border-color .15s, background .15s;
-  white-space: nowrap;
-  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: color .15s, border-color .15s;
 }
-.listen-btn:hover { color: var(--text); border-color: var(--text); }
-.listen-btn.active {
-  color: var(--accent);
-  border-color: var(--accent);
-  background: var(--accent-lo);
-}
-
-.mic-icon { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 1.8; flex-shrink: 0; }
+.mic-btn:hover { color: var(--text); border-color: var(--muted); }
+.mic-btn.on { color: var(--text); border-color: var(--dim); }
+.mic-btn svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 1.8; }
 
 .heard {
-  font: 11px/1.5 var(--mono);
-  color: var(--muted);
-  min-height: 17px;
-  margin-bottom: 24px;
-}
-
-.heard .you-label { color: var(--dim); }
-
-.reply-area {
-  flex: 1;
-  min-height: 120px;
+  font-size: 12px;
+  color: var(--dim);
+  margin-bottom: 28px;
+  min-height: 18px;
+  letter-spacing: .01em;
 }
 
 .reply {
-  font: 14px/1.75 var(--sans);
+  font-size: 18px;
+  line-height: 1.7;
   color: var(--text);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+  max-width: 580px;
 }
 
 .reply pre {
   margin-top: 16px;
-  padding: 14px 16px;
-  background: var(--s0);
+  padding: 14px;
+  background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--r);
-  font: 11.5px/1.6 var(--mono);
+  border-radius: 3px;
+  font-size: 12px;
+  font-family: ui-monospace, monospace;
   overflow-x: auto;
-  color: #8d9bb5;
-}
-
-.thinking-dots {
-  display: flex;
-  gap: 5px;
-  align-items: center;
-  padding: 8px 0;
-}
-.thinking-dots span {
-  width: 4px;
-  height: 4px;
-  background: var(--accent);
-  border-radius: 50%;
-  animation: blink 1.1s ease-in-out infinite;
-  opacity: .3;
-}
-.thinking-dots span:nth-child(2) { animation-delay: .18s; }
-.thinking-dots span:nth-child(3) { animation-delay: .36s; }
-
-.empty-hint {
-  font: 12px/1.6 var(--sans);
   color: var(--muted);
+  white-space: pre;
 }
+
+.idle { font-size: 14px; color: var(--dim); }
 
 ::-webkit-scrollbar { width: 3px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-
-@media (max-width: 640px) {
-  .layout { grid-template-columns: 1fr; }
-  .sidebar { position: static; height: auto; }
-  .main { padding: 24px 20px; }
-}
+::-webkit-scrollbar-thumb { background: var(--border); }
 </style>
 </head>
 <body>
 
-<div class="layout">
+<aside>
+  <div class="wordmark">AURA</div>
 
-  <aside class="sidebar">
-    <div class="sidebar-top">
-      <div class="wordmark">A.U.R.A</div>
-      <div class="wordmark-full">Autonomous User Reasoning Assistant</div>
+  <div class="section">
+    <div class="label">Access token</div>
+    <input class="field" id="patInput" type="text" placeholder="sbp_…" autocomplete="off" spellcheck="false">
+    <button class="btn" id="loadBtn">Load projects</button>
+    <div class="conn-note" id="connNote">Enter a Supabase personal access token to connect.</div>
+  </div>
+
+  <div class="section">
+    <div class="label">Project</div>
+    <div class="project-row">
+      <span class="pip" id="pip"></span>
+      <select class="project-select" id="projectSelect" disabled>
+        <option value="">— none —</option>
+      </select>
     </div>
+  </div>
 
-    <div class="sidebar-section" style="margin-top:20px;">
-      <div class="section-label">Project</div>
-      <div class="connection-block">
-        <input class="conn-input" id="sbUrl" type="text" placeholder="https://xyz.supabase.co" autocomplete="off" spellcheck="false">
-        <input class="conn-input" id="sbKey" type="text" placeholder="anon / service key" autocomplete="off" spellcheck="false">
-        <button class="conn-btn" id="connectBtn">Connect</button>
-        <div class="conn-status">
-          <span class="pip" id="connPip"></span>
-          <span id="connLabel">Not connected</span>
-        </div>
-      </div>
-    </div>
+  <div class="bottom">
+    <div class="label">Voice</div>
+    <select class="voice-sel" id="voiceSelect"></select>
+    <button class="btn" id="autoBtn">Auto pitch: on</button>
+  </div>
+</aside>
 
-    <hr class="sidebar-divider">
+<main>
+  <div class="top-bar">
+    <span class="status-text" id="statusText">Ready</span>
+    <button class="mic-btn" id="micBtn">
+      <svg viewBox="0 0 24 24">
+        <rect x="9" y="2" width="6" height="13" rx="3"/>
+        <path d="M5 10a7 7 0 0014 0"/>
+        <line x1="12" y1="19" x2="12" y2="23"/>
+        <line x1="8" y1="23" x2="16" y2="23"/>
+      </svg>
+      Mic off
+    </button>
+  </div>
 
-    <div class="voice-section">
-      <div class="section-label">Voice</div>
+  <div class="heard" id="heard"></div>
 
-      <div class="voice-row">
-        <div class="voice-label">Engine</div>
-        <select class="voice-select" id="voiceSelect" aria-label="Voice engine"></select>
-      </div>
-
-      <div class="voice-row">
-        <div class="voice-label" style="margin-bottom:3px;">Auto adjust</div>
-        <div class="auto-toggle" id="autoToggle">
-          <span class="auto-toggle-label">AURA tunes delivery per response</span>
-          <button class="toggle on" id="autoBtn" aria-pressed="true" aria-label="Auto voice"></button>
-        </div>
-      </div>
-
-      <div class="voice-row">
-        <div class="voice-label">Rate</div>
-        <div class="slider-row">
-          <input id="rateSlider" type="range" min=".75" max="1.15" step=".01" value=".94" disabled>
-          <span class="slider-val" id="rateVal">.94</span>
-        </div>
-      </div>
-
-      <div class="voice-row">
-        <div class="voice-label">Pitch</div>
-        <div class="slider-row">
-          <input id="pitchSlider" type="range" min=".60" max="1.40" step=".01" value=".98" disabled>
-          <span class="slider-val" id="pitchVal">.98</span>
-        </div>
-      </div>
-
-      <div class="voice-row">
-        <div class="voice-label">Volume</div>
-        <div class="slider-row">
-          <input id="volSlider" type="range" min=".70" max="1" step=".01" value="1" disabled>
-          <span class="slider-val" id="volVal">1.00</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="sidebar-bottom">
-      <div class="log-label">Session log</div>
-      <div class="log" id="log"></div>
-    </div>
-  </aside>
-
-  <main class="main">
-    <div class="main-header">
-      <div class="state-display">
-        <div class="state-label">Status</div>
-        <div class="state-value" id="statusText">Ready</div>
-      </div>
-
-      <button class="listen-btn" id="listenBtn">
-        <svg class="mic-icon" viewBox="0 0 24 24">
-          <rect x="9" y="2" width="6" height="13" rx="3"/>
-          <path d="M5 10a7 7 0 0014 0"/>
-          <line x1="12" y1="19" x2="12" y2="23"/>
-          <line x1="8" y1="23" x2="16" y2="23"/>
-        </svg>
-        Microphone off
-      </button>
-    </div>
-
-    <div class="heard" id="heard">
-      <span class="you-label">—</span> Say "AURA" to wake me.
-    </div>
-
-    <div class="reply-area">
-      <div class="reply" id="reply">
-        <span class="empty-hint">Connect a Supabase project and turn on the microphone. Ask me anything about your data.</span>
-      </div>
-    </div>
-  </main>
-
-</div>
+  <div class="reply" id="reply">
+    <span class="idle">Connect a project and turn on the mic.</span>
+  </div>
+</main>
 
 <script>
-let supabaseUrl = localStorage.getItem("aura_sb_url") || "";
-let supabaseKey = localStorage.getItem("aura_sb_key") || "";
-let connected   = false;
-let auraUrl     = "";
+const SB_MGMT = "https://api.supabase.com";
+
+let pat = localStorage.getItem("aura_pat") || "";
+let projects = [];
+let activeProject = null;
+let auraUrl = "";
+let auraKey = "";
+let connected = false;
 
 let recognition = null;
-let listening   = false;
-let waiting     = true;
-let busy        = false;
-let speaking    = false;
-let wakeTimer   = null;
-let voices      = [];
+let listening = false;
+let waiting = true;
+let busy = false;
+let speaking = false;
+let wakeTimer = null;
 
+let autoPitchOn = true;
+let voices = [];
 const conversation = [];
+const prefs = { rate: .94, pitch: .98, volume: 1 };
 
-const prefs = {
-  auto: true,
-  rate: .94,
-  pitch: .98,
-  volume: 1,
-};
+const $pat     = document.getElementById("patInput");
+const $loadBtn = document.getElementById("loadBtn");
+const $note    = document.getElementById("connNote");
+const $projSel = document.getElementById("projectSelect");
+const $pip     = document.getElementById("pip");
+const $status  = document.getElementById("statusText");
+const $heard   = document.getElementById("heard");
+const $reply   = document.getElementById("reply");
+const $micBtn  = document.getElementById("micBtn");
+const $autoBtn = document.getElementById("autoBtn");
+const $voiceSel= document.getElementById("voiceSelect");
 
-const $sbUrl     = document.getElementById("sbUrl");
-const $sbKey     = document.getElementById("sbKey");
-const $connBtn   = document.getElementById("connectBtn");
-const $connPip   = document.getElementById("connPip");
-const $connLabel = document.getElementById("connLabel");
-const $statusTxt = document.getElementById("statusText");
-const $heard     = document.getElementById("heard");
-const $reply     = document.getElementById("reply");
-const $log       = document.getElementById("log");
-const $listenBtn = document.getElementById("listenBtn");
-const $autoBtn   = document.getElementById("autoBtn");
-const $voiceSel  = document.getElementById("voiceSelect");
-const $rSlider   = document.getElementById("rateSlider");
-const $pSlider   = document.getElementById("pitchSlider");
-const $vSlider   = document.getElementById("volSlider");
-const $rVal      = document.getElementById("rateVal");
-const $pVal      = document.getElementById("pitchVal");
-const $vVal      = document.getElementById("volVal");
+if (pat) $pat.value = pat;
 
-$sbUrl.value = supabaseUrl;
-$sbKey.value = supabaseKey || "";
-
-function setConnected(ok, label) {
-  connected = ok;
-  $connPip.className = "pip" + (ok ? " live" : "");
-  $connLabel.textContent = label;
+function setPip(state) {
+  $pip.className = "pip" + (state === "live" ? " live" : state === "err" ? " err" : "");
 }
 
-function setStatus(txt, mode) {
-  $statusTxt.textContent = txt;
-  $connPip.className = "pip" + (
-    mode === "live" ? " live" :
-    mode === "error" ? " error" :
-    mode === "thinking" ? " thinking" : ""
-  );
-  if (connected && mode !== "thinking" && mode !== "error") {
-    $connPip.className = "pip live";
-  }
+function setStatus(txt) { $status.textContent = txt; }
+
+function setNote(txt) { $note.textContent = txt; }
+
+async function mgmt(path) {
+  const r = await fetch(SB_MGMT + path, {
+    headers: { Authorization: "Bearer " + pat }
+  });
+  if (!r.ok) throw new Error("Management API " + r.status);
+  return r.json();
 }
 
-async function tryConnect(url, key) {
-  if (!url || !key) return false;
+$loadBtn.onclick = async () => {
+  pat = $pat.value.trim();
+  if (!pat) { setNote("Paste your personal access token first."); return; }
+  localStorage.setItem("aura_pat", pat);
+
+  $loadBtn.disabled = true;
+  $loadBtn.textContent = "Loading…";
+  setNote("");
+  setPip("");
+
   try {
-    const r = await fetch(url + "/functions/v1/aura-v3", {
-      method: "OPTIONS",
-      headers: { apikey: key },
+    projects = await mgmt("/v1/projects");
+    $projSel.innerHTML = '<option value="">— select —</option>';
+    projects.forEach(p => {
+      const opt = document.createElement("option");
+      opt.value = p.id;
+      opt.textContent = p.name;
+      $projSel.appendChild(opt);
     });
-    return r.ok || r.status === 204 || r.status === 200;
-  } catch {
-    return false;
-  }
-}
-
-$connBtn.onclick = async () => {
-  const url = $sbUrl.value.trim().replace(/\/$/, "");
-  const key = $sbKey.value.trim();
-
-  if (!url || !key) {
-    setConnected(false, "URL and key required");
-    return;
+    $projSel.disabled = false;
+    setNote(projects.length + " project" + (projects.length !== 1 ? "s" : "") + " loaded.");
+    const saved = localStorage.getItem("aura_project");
+    if (saved && projects.find(p => p.id === saved)) {
+      $projSel.value = saved;
+      await activateProject(saved);
+    }
+  } catch(e) {
+    setNote("Could not load projects. Check your token.");
+    setPip("err");
   }
 
-  $connBtn.disabled = true;
-  $connBtn.textContent = "Connecting…";
-  setConnected(false, "Checking…");
-
-  supabaseUrl = url;
-  supabaseKey = key;
-  auraUrl = url + "/functions/v1/aura-v3";
-
-  localStorage.setItem("aura_sb_url", url);
-  localStorage.setItem("aura_sb_key", key);
-
-  const ok = await tryConnect(url, key);
-  $connBtn.disabled = false;
-  $connBtn.textContent = "Connect";
-
-  if (ok) {
-    setConnected(true, url.replace("https://", "").split(".")[0]);
-    addLog("conn", "Connected to " + url.replace("https://","").split(".")[0], "aura");
-  } else {
-    setConnected(false, "Could not reach edge function");
-    auraUrl = url + "/functions/v1/aura-v3";
-    setConnected(true, url.replace("https://", "").split(".")[0] + " (assumed)");
-    addLog("conn", "Connected (unverified)", "aura");
-  }
+  $loadBtn.disabled = false;
+  $loadBtn.textContent = "Load projects";
 };
 
-if (DEFAULT_URL && DEFAULT_KEY) {
-  auraUrl = DEFAULT_URL + "/functions/v1/aura-v3";
-  setConnected(true, DEFAULT_URL.replace("https://","").split(".")[0]);
+async function activateProject(id) {
+  if (!id) { setPip(""); connected = false; return; }
+  setPip("");
+  setNote("Connecting…");
+
+  try {
+    const detail = await mgmt("/v1/projects/" + id);
+    const keysData = await mgmt("/v1/projects/" + id + "/api-keys");
+    const anonKey = (keysData || []).find(k => k.name === "anon")?.api_key || "";
+
+    if (!anonKey) throw new Error("No anon key found");
+
+    activeProject = detail;
+    auraUrl = "https://" + detail.id + ".supabase.co/functions/v1/aura-v3";
+    auraKey = anonKey;
+
+    const probe = await fetch(auraUrl, {
+      method: "OPTIONS",
+      headers: { apikey: auraKey }
+    });
+
+    if (probe.ok || probe.status === 204 || probe.status === 200) {
+      connected = true;
+      setPip("live");
+      setNote(detail.name);
+      localStorage.setItem("aura_project", id);
+    } else {
+      throw new Error("Edge function unreachable (status " + probe.status + ")");
+    }
+  } catch(e) {
+    connected = false;
+    setPip("err");
+    setNote(e.message);
+  }
 }
 
-function addLog(type, text, cls) {
-  const entry = document.createElement("div");
-  entry.className = "log-entry";
-  const tag = document.createElement("span");
-  tag.className = "log-tag " + (cls || "");
-  tag.textContent = type === "conn" ? "SB" : type === "you" ? "YOU" : "AURA";
-  const msg = document.createElement("span");
-  msg.className = "log-msg";
-  msg.textContent = text.slice(0, 120);
-  entry.appendChild(tag);
-  entry.appendChild(msg);
-  $log.insertBefore(entry, $log.firstChild);
-}
-
-function escHtml(s) {
-  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-}
+$projSel.onchange = () => activateProject($projSel.value);
 
 function render(text) {
   $reply.textContent = "";
@@ -655,9 +408,7 @@ function render(text) {
   for (const part of parts) {
     if (part.startsWith("```") && part.endsWith("```")) {
       const pre = document.createElement("pre");
-      const code = document.createElement("code");
-      code.textContent = part.replace(/^```[^\n]*\n?/, "").replace(/```$/, "");
-      pre.appendChild(code);
+      pre.textContent = part.replace(/^```[^\n]*\n?/, "").replace(/```$/, "");
       $reply.appendChild(pre);
     } else if (part.trim()) {
       const span = document.createElement("span");
@@ -667,77 +418,47 @@ function render(text) {
   }
 }
 
-function showThinking() {
-  $reply.innerHTML = '<div class="thinking-dots"><span></span><span></span><span></span></div>';
-}
-
-function loadVoices() {
-  voices = speechSynthesis.getVoices().filter(v => v && v.name);
-  $voiceSel.innerHTML = "";
-  if (!voices.length) {
-    $voiceSel.innerHTML = '<option value="">No voices available</option>';
-    return;
-  }
-  const en = voices.filter(v => /^en/i.test(v.lang));
-  const list = en.length ? en : voices;
-  list.forEach(v => {
-    const opt = document.createElement("option");
-    opt.value = String(voices.indexOf(v));
-    opt.textContent = v.name;
-    $voiceSel.appendChild(opt);
-  });
-  const prefer = list.findIndex(v => /zira|google us english/i.test(v.name));
-  if (prefer >= 0) $voiceSel.value = String(voices.indexOf(list[prefer]));
-}
-
-loadVoices();
-speechSynthesis.onvoiceschanged = loadVoices;
-setTimeout(loadVoices, 400);
-setTimeout(loadVoices, 1200);
-
 function toSpeech(text) {
   return String(text)
     .replace(/```[\s\S]*?```/g, "I've displayed the code.")
     .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
     .replace(/[*_~`#>]/g, "")
-    .replace(/\b(API|JSON|HTML|CSS|PWA|URL|UI|UX|OS|AI|CPU|GPU|RAM|SQL|RLS|JWT|UUID)\b/gi, m => m.split("").join(" "))
+    .replace(/\b(API|JSON|HTML|CSS|URL|SQL|JWT|UUID)\b/gi, m => m.split("").join(" "))
     .replace(/—/g, ", ")
     .replace(/\s+/g, " ")
     .trim();
 }
 
-function speak(text, autoPitch) {
+function speak(text, autoPitchData) {
   return new Promise(resolve => {
     const clean = toSpeech(text);
     if (!clean) { resolve(); return; }
     speechSynthesis.cancel();
 
     const utt = new SpeechSynthesisUtterance(clean);
-    const avail = speechSynthesis.getVoices();
+    const all = speechSynthesis.getVoices();
     const idx = Number($voiceSel.value);
-    if (Number.isInteger(idx) && avail[idx]) utt.voice = avail[idx];
+    if (Number.isInteger(idx) && all[idx]) utt.voice = all[idx];
 
-    let rate = prefs.rate, pitch = prefs.pitch, volume = prefs.volume;
-    if (prefs.auto && autoPitch) {
-      if (isFinite(+autoPitch.rate))   rate   = clamp(+autoPitch.rate, .75, 1.15);
-      if (isFinite(+autoPitch.pitch))  pitch  = clamp(+autoPitch.pitch, .6, 1.4);
-      if (isFinite(+autoPitch.volume)) volume = clamp(+autoPitch.volume, .7, 1);
+    let { rate, pitch, volume } = prefs;
+    if (autoPitchOn && autoPitchData) {
+      if (isFinite(+autoPitchData.rate))   rate   = Math.min(1.15, Math.max(.75, +autoPitchData.rate));
+      if (isFinite(+autoPitchData.pitch))  pitch  = Math.min(1.40, Math.max(.60, +autoPitchData.pitch));
+      if (isFinite(+autoPitchData.volume)) volume = Math.min(1,    Math.max(.70, +autoPitchData.volume));
     }
     utt.rate = rate; utt.pitch = pitch; utt.volume = volume;
 
     speaking = true;
-    setStatus("Speaking", "live");
+    setStatus("Speaking");
     utt.onend = utt.onerror = () => { speaking = false; resolve(); };
     speechSynthesis.speak(utt);
   });
 }
 
-function clamp(v, mn, mx) { return Math.min(mx, Math.max(mn, v)); }
-
 async function ask(text) {
   if (busy || speaking || !text.trim()) return;
-  if (!auraUrl) {
-    $reply.textContent = "No project connected. Enter a Supabase URL and key in the sidebar.";
+  if (!auraUrl || !auraKey) {
+    $reply.textContent = "No project connected.";
     return;
   }
 
@@ -746,81 +467,69 @@ async function ask(text) {
   clearTimeout(wakeTimer);
   try { recognition?.stop(); } catch(_) {}
 
-  setStatus("Thinking", "thinking");
-  $heard.innerHTML = `<span class="you-label">You</span>  ${escHtml(text)}`;
-  showThinking();
-  addLog("you", text, "you");
+  setStatus("Thinking");
+  $heard.textContent = text;
+  $reply.innerHTML = "";
 
   try {
     const res = await fetch(auraUrl, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "apikey": supabaseKey,
-      },
-      body: JSON.stringify({
-        message: text,
-        history: conversation.slice(-12),
-        preferences: prefs,
-      }),
+      headers: { "Content-Type": "application/json", apikey: auraKey },
+      body: JSON.stringify({ message: text, history: conversation.slice(-12), preferences: prefs }),
     });
 
     let data;
-    try { data = await res.json(); } catch(_) { throw new Error("Bad response from edge function."); }
+    try { data = await res.json(); } catch(_) { throw new Error("Bad response."); }
     if (!res.ok) throw new Error(data.error || "HTTP " + res.status);
     if (!data.text) throw new Error("Empty response.");
 
-    conversation.push(
-      { role: "user", content: text },
-      { role: "assistant", content: data.text }
-    );
+    conversation.push({ role: "user", content: text }, { role: "assistant", content: data.text });
     if (conversation.length > 24) conversation.splice(0, conversation.length - 24);
 
     render(data.text);
-    addLog("aura", data.text, "aura");
     await speak(data.spoken || data.text, data.pitch);
 
-  } catch(err) {
-    $reply.textContent = err.message;
-    addLog("err", err.message, "err");
-    setStatus("Error", "error");
+  } catch(e) {
+    $reply.textContent = e.message;
+    setStatus("Error");
+    setPip("err");
   } finally {
     busy = false;
+    if (connected) setPip("live");
     if (listening && !speaking) {
       waiting = true;
-      setStatus("Listening", connected ? "live" : "");
+      setStatus("Listening");
       setTimeout(startListening, 200);
-    } else if (!listening) {
-      setStatus("Ready", connected ? "live" : "");
+    } else {
+      setStatus("Ready");
     }
   }
 }
 
-function processSpeech(text) {
+function onSpeech(text) {
   text = text.trim();
   if (!text || busy || speaking) return;
   if (!waiting) { ask(text); return; }
 
-  const m = text.match(/^(?:(?:hey|okay|ok|yo)\s+)?aura\b[\s,:-]*(.*)?$/i);
+  const m = text.match(/^(?:(?:hey|ok|okay|yo)\s+)?aura\b[\s,:-]*(.*)?$/i);
   if (!m) return;
 
   waiting = false;
   const cmd = (m[1] || "").trim();
   if (cmd) { ask(cmd); return; }
 
-  $heard.innerHTML = `<span class="you-label">AURA</span>  Listening…`;
-  setStatus("Listening", connected ? "live" : "");
+  $heard.textContent = "Listening…";
+  setStatus("Listening");
   clearTimeout(wakeTimer);
   wakeTimer = setTimeout(() => {
     if (!busy && !speaking) {
       waiting = true;
-      $heard.innerHTML = `<span class="you-label">—</span> Say "AURA" to wake me.`;
+      $heard.textContent = "";
     }
   }, 5000);
 }
 
 const Recog = window.SpeechRecognition || window.webkitSpeechRecognition;
-
 if (Recog) {
   recognition = new Recog();
   recognition.continuous = true;
@@ -830,22 +539,17 @@ if (Recog) {
   recognition.onresult = e => {
     let fin = "", interim = "";
     for (let i = e.resultIndex; i < e.results.length; i++) {
-      e.results[i].isFinal
-        ? (fin += e.results[i][0].transcript)
-        : (interim += e.results[i][0].transcript);
+      e.results[i].isFinal ? (fin += e.results[i][0].transcript) : (interim += e.results[i][0].transcript);
     }
-    if (interim && !busy && !speaking) {
-      $heard.innerHTML = `<span class="you-label">—</span> ${escHtml(interim)}`;
-    }
-    if (fin) processSpeech(fin);
+    if (interim && !busy && !speaking) $heard.textContent = interim;
+    if (fin) onSpeech(fin);
   };
 
   recognition.onerror = e => {
     if (e.error === "not-allowed" || e.error === "service-not-allowed") {
       listening = false;
-      $listenBtn.classList.remove("active");
-      $listenBtn.lastChild.textContent = " Microphone off";
-      setStatus("Mic permission denied", "error");
+      updateMicBtn();
+      setStatus("Mic permission denied");
       return;
     }
     if (listening) setTimeout(startListening, 500);
@@ -855,8 +559,8 @@ if (Recog) {
     if (listening && !busy && !speaking) setTimeout(startListening, 200);
   };
 } else {
-  $listenBtn.disabled = true;
-  $listenBtn.lastChild.textContent = " Not supported";
+  $micBtn.disabled = true;
+  $micBtn.lastChild.textContent = " Not supported";
 }
 
 function startListening() {
@@ -868,49 +572,58 @@ function startListening() {
   }
 }
 
-$listenBtn.onclick = () => {
-  if (!listening) {
-    listening = true;
-    waiting = true;
-    $listenBtn.classList.add("active");
-    $listenBtn.innerHTML = `<svg class="mic-icon" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="13" rx="3"/><path d="M5 10a7 7 0 0014 0"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg> Microphone on`;
-    $heard.innerHTML = `<span class="you-label">—</span> Say "AURA" to wake me.`;
-    setStatus("Listening", connected ? "live" : "");
+function updateMicBtn() {
+  $micBtn.classList.toggle("on", listening);
+  $micBtn.innerHTML = `<svg viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="13" rx="3"/><path d="M5 10a7 7 0 0014 0"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg> Mic ${listening ? "on" : "off"}`;
+}
+
+$micBtn.onclick = () => {
+  listening = !listening;
+  waiting = true;
+  updateMicBtn();
+  if (listening) {
+    setStatus("Listening");
+    $heard.textContent = "";
     startListening();
   } else {
-    listening = false;
-    waiting = true;
     speechSynthesis.cancel();
     clearTimeout(wakeTimer);
     try { recognition?.stop(); } catch(_) {}
-    $listenBtn.classList.remove("active");
-    $listenBtn.innerHTML = `<svg class="mic-icon" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="13" rx="3"/><path d="M5 10a7 7 0 0014 0"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg> Microphone off`;
-    setStatus("Ready", connected ? "live" : "");
-    $heard.innerHTML = `<span class="you-label">—</span> Say "AURA" to wake me.`;
+    setStatus("Ready");
+    $heard.textContent = "";
   }
 };
 
 $autoBtn.onclick = () => {
-  prefs.auto = !prefs.auto;
-  $autoBtn.classList.toggle("on", prefs.auto);
-  $autoBtn.setAttribute("aria-pressed", prefs.auto);
-  [$rSlider, $pSlider, $vSlider].forEach(s => s.disabled = prefs.auto);
+  autoPitchOn = !autoPitchOn;
+  $autoBtn.textContent = "Auto pitch: " + (autoPitchOn ? "on" : "off");
+  $autoBtn.classList.toggle("on", autoPitchOn);
 };
+$autoBtn.classList.add("on");
 
-document.getElementById("autoToggle").onclick = e => {
-  if (e.target !== $autoBtn) $autoBtn.click();
-};
-
-function syncSliders() {
-  prefs.rate   = clamp(+$rSlider.value, .75, 1.15);
-  prefs.pitch  = clamp(+$pSlider.value, .60, 1.40);
-  prefs.volume = clamp(+$vSlider.value, .70, 1);
-  $rVal.textContent = prefs.rate.toFixed(2);
-  $pVal.textContent = prefs.pitch.toFixed(2);
-  $vVal.textContent = prefs.volume.toFixed(2);
+function loadVoices() {
+  voices = speechSynthesis.getVoices().filter(v => v?.name);
+  $voiceSel.innerHTML = "";
+  const en = voices.filter(v => /^en/i.test(v.lang));
+  const list = en.length ? en : voices;
+  if (!list.length) { $voiceSel.innerHTML = '<option>No voices</option>'; return; }
+  list.forEach(v => {
+    const o = document.createElement("option");
+    o.value = String(voices.indexOf(v));
+    o.textContent = v.name;
+    $voiceSel.appendChild(o);
+  });
+  const pref = list.findIndex(v => /zira|google us english/i.test(v.name));
+  if (pref >= 0) $voiceSel.value = String(voices.indexOf(list[pref]));
 }
-$rSlider.oninput = $pSlider.oninput = $vSlider.oninput = syncSliders;
-syncSliders();
+loadVoices();
+speechSynthesis.onvoiceschanged = loadVoices;
+setTimeout(loadVoices, 400);
+setTimeout(loadVoices, 1200);
+
+if (pat) {
+  setTimeout(() => $loadBtn.click(), 300);
+}
 </script>
 </body>
 </html>

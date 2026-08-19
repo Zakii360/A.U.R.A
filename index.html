@@ -3,1827 +3,794 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#0b0c0f">
-<link rel="manifest" href="./manifest.json">
-<link rel="icon" href="data:,">
+<meta name="theme-color" content="#080a0e">
 <title>A.U.R.A</title>
-
 <style>
-*{box-sizing:border-box}
+  /* Reset & base*/
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-body{
-  margin:0;
-  min-height:100vh;
-  display:grid;
-  place-items:center;
-  background:#0b0c0f;
-  color:#e7e9ed;
-  font:15px system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif
-}
+  :root {
+    --bg:        #080a0e;
+    --surface:   #0d1017;
+    --border:    #181c24;
+    --border-hi: #252c3a;
+    --text:      #dde2ec;
+    --muted:     #5a6275;
+    --dim:       #3a4155;
+    --accent:    #7b9cff;
+    --accent-lo: rgba(123,156,255,.08);
+    --green:     #4ecb8a;
+    --red:       #ff5f5f;
+    --mono:      ui-monospace, SFMono-Regular, Consolas, monospace;
+    --sans:      system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --radius:    8px;
+    --glow:      0 0 0 1px rgba(123,156,255,.25), 0 0 18px rgba(123,156,255,.08);
+  }
 
-main{width:min(92vw,680px)}
+  html, body { height: 100%; }
 
-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:28px
-}
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font: 14px/1.6 var(--sans);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 16px 32px;
+    min-height: 100vh;
+  }
 
-h1{
-  margin:0;
-  font-size:18px;
-  font-weight:600;
-  letter-spacing:.16em
-}
+  /* Shell*/
+  .shell {
+    width: min(100%, 660px);
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
 
-#state{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  color:#858b96;
-  font-size:13px
-}
+  /* Header */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 28px;
+  }
 
-#dot{
-  width:7px;
-  height:7px;
-  border-radius:50%;
-  background:#4d525b
-}
+  .wordmark {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
 
-#dot.on{background:#8aa2ff}
+  .wordmark-title {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .22em;
+    color: var(--text);
+  }
 
-#conversation{
-  padding:20px 0;
-  border-top:1px solid #1d2026;
-  border-bottom:1px solid #1d2026
-}
+  .wordmark-sub {
+    font-size: 10px;
+    letter-spacing: .14em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
 
-#heard{
-  min-height:22px;
-  margin-bottom:14px;
-  color:#858b96
-}
+  .status-badge {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 11px;
+    letter-spacing: .06em;
+    color: var(--muted);
+  }
 
-#reply{
-  min-height:50px;
-  line-height:1.65;
-  white-space:pre-wrap;
-  overflow-wrap:anywhere
-}
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--dim);
+    transition: background .3s, box-shadow .3s;
+    flex-shrink: 0;
+  }
+  .dot.active {
+    background: var(--accent);
+    box-shadow: 0 0 6px var(--accent);
+  }
+  .dot.error { background: var(--red); }
 
-#reply pre{
-  margin:16px 0 0;
-  padding:14px;
-  overflow:auto;
-  border:1px solid #20242c;
-  border-radius:6px;
-  background:#111318;
-  font:13px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace
-}
+  /* Conversation pane */
+  .pane {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
 
-.controls{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-  margin-top:20px
-}
+  .heard {
+    font-size: 12px;
+    color: var(--muted);
+    min-height: 18px;
+    letter-spacing: .02em;
+  }
+  .heard span { color: var(--dim); }
 
-button,select{
-  padding:10px 14px;
-  border:1px solid #30343c;
-  border-radius:6px;
-  background:#121419;
-  color:#e7e9ed;
-  font:inherit
-}
+  .reply {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    min-height: 48px;
+  }
 
-button{cursor:pointer}
+  .reply pre {
+    margin-top: 14px;
+    padding: 14px 16px;
+    background: var(--bg);
+    border: 1px solid var(--border-hi);
+    border-radius: 6px;
+    font: 12px/1.55 var(--mono);
+    overflow: auto;
+    color: #b0bcd4;
+  }
 
-button:hover,
-select:hover{
-  background:#181b21
-}
+  /* Thinking animation */
+  .thinking {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    padding: 4px 0;
+  }
+  .thinking span {
+    width: 5px; height: 5px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 1.2s ease-in-out infinite;
+    opacity: .4;
+  }
+  .thinking span:nth-child(2) { animation-delay: .2s; }
+  .thinking span:nth-child(3) { animation-delay: .4s; }
 
-button.active{
-  border-color:#536cae;
-  background:#151b2b
-}
+  @keyframes pulse {
+    0%, 100% { opacity: .2; transform: scale(.85); }
+    50%       { opacity: 1;  transform: scale(1.15); }
+  }
 
-select{
-  min-width:230px;
-  cursor:pointer
-}
+  /* Divider */
+  hr.rule {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 0;
+  }
 
-.customization{
-  margin-top:14px;
-  padding:14px;
-  border:1px solid #1d2026;
-  border-radius:7px;
-  background:#0e1014
-}
+  /* Controls row */
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 var(--radius) var(--radius);
+    flex-wrap: wrap;
+  }
 
-.customization label{
-  display:grid;
-  grid-template-columns:70px 1fr 45px;
-  align-items:center;
-  gap:12px;
-  margin:12px 0;
-  color:#858b96;
-  font-size:13px
-}
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border: 1px solid var(--border-hi);
+    border-radius: 5px;
+    background: transparent;
+    color: var(--muted);
+    font: 11px/1 var(--sans);
+    letter-spacing: .06em;
+    cursor: pointer;
+    transition: color .15s, border-color .15s, background .15s;
+    white-space: nowrap;
+  }
+  .btn:hover  { color: var(--text); border-color: var(--accent); }
+  .btn.on     { color: var(--accent); border-color: var(--accent); background: var(--accent-lo); }
 
-.customization input[type=range]{
-  width:100%
-}
+  .btn-icon { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.8; }
 
-.value{
-  text-align:right;
-  color:#aeb4bf;
-  font-variant-numeric:tabular-nums
-}
+  .voice-select {
+    margin-left: auto;
+    padding: 6px 10px;
+    border: 1px solid var(--border-hi);
+    border-radius: 5px;
+    background: transparent;
+    color: var(--muted);
+    font: 11px/1 var(--sans);
+    cursor: pointer;
+    max-width: 180px;
+    transition: color .15s, border-color .15s;
+  }
+  .voice-select:hover { color: var(--text); border-color: var(--accent); }
+  .voice-select option { background: #0d1017; }
 
-#log{
-  max-height:140px;
-  margin-top:20px;
-  overflow:auto;
-  color:#686f7b;
-  font-size:12px
-}
+  /* Settings panel */
+  .settings {
+    margin-top: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
 
-#log p{margin:5px 0}
+  .settings-head {
+    padding: 10px 16px;
+    font-size: 10px;
+    letter-spacing: .14em;
+    color: var(--muted);
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    user-select: none;
+  }
+  .settings-head:hover { color: var(--text); }
+  .settings-head svg { transition: transform .2s; }
+  .settings-head.open svg { transform: rotate(180deg); }
 
-.disabled{
-  opacity:.45;
-}
+  .settings-body {
+    display: none;
+    padding: 4px 16px 16px;
+    flex-direction: column;
+    gap: 10px;
+    border-top: 1px solid var(--border);
+  }
+  .settings-body.open { display: flex; }
 
-small{
-  color:#686f7b;
-  display:block;
-  margin-top:8px
-}
+  .slider-row {
+    display: grid;
+    grid-template-columns: 60px 1fr 38px;
+    align-items: center;
+    gap: 12px;
+    color: var(--muted);
+    font-size: 11px;
+  }
+  .slider-row input[type=range] {
+    width: 100%;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+  .slider-row input:disabled { opacity: .3; cursor: default; }
+  .slider-val { text-align: right; color: var(--dim); font-variant-numeric: tabular-nums; }
+
+  .auto-note {
+    font-size: 11px;
+    color: var(--dim);
+    padding-top: 4px;
+  }
+
+  /* ── Log ──────────────────────────────────────── */
+  .log {
+    margin-top: 10px;
+    max-height: 110px;
+    overflow-y: auto;
+    font: 11px/1.5 var(--mono);
+    color: var(--muted);
+    padding: 0 2px;
+  }
+  .log p { margin: 3px 0; }
+  .log .tag { color: var(--dim); }
+  .log .tag-aura { color: var(--accent); opacity: .7; }
+  .log .tag-err  { color: var(--red); opacity: .8; }
+
+  /* ── Scrollbar ─────────────────────────────────── */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 4px; }
 </style>
 </head>
-
 <body>
 
-<main>
+<div class="shell">
 
-<header>
-  <h1>AURA</h1>
+  <!-- Header -->
+  <header>
+    <div class="wordmark">
+      <span class="wordmark-title">A.U.R.A</span>
+      <span class="wordmark-sub">Autonomous User Reasoning Assistant</span>
+    </div>
+    <div class="status-badge">
+      <span class="dot" id="dot"></span>
+      <span id="status">Ready</span>
+    </div>
+  </header>
 
-  <div id="state">
-    <span id="dot"></span>
-    <span id="status">Ready</span>
+  <!-- Conversation pane -->
+  <div class="pane">
+    <div class="heard" id="heard">
+      <span>Say "AURA" to get my attention.</span>
+    </div>
+    <div class="reply" id="reply"></div>
   </div>
-</header>
 
+  <hr class="rule">
 
-<section id="conversation">
+  <!-- Controls -->
+  <div class="controls">
 
-  <div id="heard">
-    Say “AURA” to get my attention.
+    <button class="btn" id="listenBtn">
+      <!-- mic icon -->
+      <svg class="btn-icon" viewBox="0 0 24 24">
+        <rect x="9" y="2" width="6" height="13" rx="3"/>
+        <path d="M5 10a7 7 0 0014 0"/>
+        <line x1="12" y1="19" x2="12" y2="23"/>
+        <line x1="8" y1="23" x2="16" y2="23"/>
+      </svg>
+      LISTEN: OFF
+    </button>
+
+    <button class="btn on" id="autoVoiceBtn">
+      <!-- wave icon -->
+      <svg class="btn-icon" viewBox="0 0 24 24">
+        <path d="M2 12h2M6 8v8M10 5v14M14 8v8M18 6v12M22 10v4"/>
+      </svg>
+      AUTO VOICE: ON
+    </button>
+
+    <select class="voice-select" id="voiceSelect" aria-label="Voice"></select>
+
   </div>
 
-  <div id="reply"></div>
+  <!-- Settings panel -->
+  <div class="settings">
+    <div class="settings-head" id="settingsHead">
+      Voice tuning
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+    <div class="settings-body" id="settingsBody">
 
-</section>
+      <div class="slider-row">
+        <span>Rate</span>
+        <input id="rateSlider" type="range" min=".75" max="1.15" step=".01" value=".94" disabled>
+        <span class="slider-val" id="rateVal">.94</span>
+      </div>
 
+      <div class="slider-row">
+        <span>Pitch</span>
+        <input id="pitchSlider" type="range" min=".60" max="1.40" step=".01" value=".98" disabled>
+        <span class="slider-val" id="pitchVal">.98</span>
+      </div>
 
-<div class="controls">
+      <div class="slider-row">
+        <span>Volume</span>
+        <input id="volSlider" type="range" min=".70" max="1" step=".01" value="1" disabled>
+        <span class="slider-val" id="volVal">1.00</span>
+      </div>
 
-  <button id="listen">
-    CONSTANT LISTENING: OFF
-  </button>
+      <p class="auto-note" id="autoNote">Auto voice is on — AURA adjusts delivery per response.</p>
 
-  <button
-    id="autoVoice"
-    class="active"
-    type="button"
-  >
-    AUTO VOICE: ON
-  </button>
+    </div>
+  </div>
 
-  <select
-    id="voice"
-    aria-label="Voice"
-  ></select>
+  <!-- Log -->
+  <div class="log" id="log"></div>
 
-</div>
+</div><!-- /shell -->
 
-
-<div class="customization">
-
-  <label>
-    <span>Rate</span>
-
-    <input
-      id="rate"
-      type="range"
-      min=".75"
-      max="1.15"
-      step=".01"
-      value=".94"
-    >
-
-    <span
-      id="rateValue"
-      class="value"
-    >.94</span>
-  </label>
-
-
-  <label>
-    <span>Pitch</span>
-
-    <input
-      id="pitch"
-      type="range"
-      min=".60"
-      max="1.40"
-      step=".01"
-      value=".98"
-    >
-
-    <span
-      id="pitchValue"
-      class="value"
-    >.98</span>
-  </label>
-
-
-  <label>
-    <span>Volume</span>
-
-    <input
-      id="volume"
-      type="range"
-      min=".70"
-      max="1"
-      step=".01"
-      value="1"
-    >
-
-    <span
-      id="volumeValue"
-      class="value"
-    >1.00</span>
-  </label>
-
-  <small id="voiceMode">
-    Automatic voice direction is enabled.
-  </small>
-
-</div>
-
-
-<div id="log"></div>
-
-</main>
-
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
+/* ───────────────────────────────────────────────────────────
+   CONFIG
+─────────────────────────────────────────────────────────── */
+const SUPABASE_URL = "https://tvxugmumfvgnvjacwwfz.supabase.co";
+const SUPABASE_KEY = "sb_publishable_1mPqnw9hx5Vm0O_o4O_fsg_96YAhDuY";
+const AURA_URL     = SUPABASE_URL + "/functions/v1/aura-v3";
 
-const SUPABASE_URL =
-  "https://tvxugmumfvgnvjacwwfz.supabase.co";
+/* ───────────────────────────────────────────────────────────
+   STATE
+─────────────────────────────────────────────────────────── */
+let recognition  = null;
+let listening    = false;
+let waiting      = true;   // true = in wake-word mode
+let busy         = false;
+let speaking     = false;
+let wakeTimer    = null;
+let voices       = [];
 
-const SUPABASE_KEY =
-  "sb_publishable_1mPqnw9hx5Vm0O_o4O_fsg_96YAhDuY";
+const conversation = [];   // short-term memory
 
-const AURA_URL =
-  SUPABASE_URL + "/functions/v1/aura-v2";
-
-
-const statusEl =
-  document.getElementById("status");
-
-const dot =
-  document.getElementById("dot");
-
-const heard =
-  document.getElementById("heard");
-
-const reply =
-  document.getElementById("reply");
-
-const logEl =
-  document.getElementById("log");
-
-const listenBtn =
-  document.getElementById("listen");
-
-const autoVoiceBtn =
-  document.getElementById("autoVoice");
-
-const voiceSelect =
-  document.getElementById("voice");
-
-const rateControl =
-  document.getElementById("rate");
-
-const pitchControl =
-  document.getElementById("pitch");
-
-const volumeControl =
-  document.getElementById("volume");
-
-const rateValue =
-  document.getElementById("rateValue");
-
-const pitchValue =
-  document.getElementById("pitchValue");
-
-const volumeValue =
-  document.getElementById("volumeValue");
-
-const voiceMode =
-  document.getElementById("voiceMode");
-
-
-let recognition = null;
-
-let listening = false;
-
-let waiting = true;
-
-let busy = false;
-
-let speaking = false;
-
-let wakeTimer = null;
-
-let voices = [];
-
-
-/*
- * This is deliberately kept locally.
- * It gives AURA short-term conversational
- * memory without another database table.
- */
-const conversation = [];
-
-
-const preferences = {
+const prefs = {
   automaticVoice: true,
-  rate: .94,
-  pitch: .98,
-  volume: 1
+  rate:   .94,
+  pitch:  .98,
+  volume: 1,
 };
 
+/* ───────────────────────────────────────────────────────────
+   DOM
+─────────────────────────────────────────────────────────── */
+const $dot        = document.getElementById("dot");
+const $status     = document.getElementById("status");
+const $heard      = document.getElementById("heard");
+const $reply      = document.getElementById("reply");
+const $log        = document.getElementById("log");
+const $listenBtn  = document.getElementById("listenBtn");
+const $autoVoice  = document.getElementById("autoVoiceBtn");
+const $voiceSel   = document.getElementById("voiceSelect");
+const $rateSlider = document.getElementById("rateSlider");
+const $pitchSlider= document.getElementById("pitchSlider");
+const $volSlider  = document.getElementById("volSlider");
+const $rateVal    = document.getElementById("rateVal");
+const $pitchVal   = document.getElementById("pitchVal");
+const $volVal     = document.getElementById("volVal");
+const $autoNote   = document.getElementById("autoNote");
+const $sHead      = document.getElementById("settingsHead");
+const $sBody      = document.getElementById("settingsBody");
 
-/* -------------------------
-   UI STATE
-------------------------- */
+/* ───────────────────────────────────────────────────────────
+   SETTINGS ACCORDION
+─────────────────────────────────────────────────────────── */
+$sHead.addEventListener("click", () => {
+  const open = $sBody.classList.toggle("open");
+  $sHead.classList.toggle("open", open);
+});
 
-function setStatus(
-  text,
-  active = false
-){
-
-  statusEl.textContent =
-    text;
-
-  dot.classList.toggle(
-    "on",
-    active
-  );
+/* ───────────────────────────────────────────────────────────
+   STATUS
+─────────────────────────────────────────────────────────── */
+function setStatus(text, active = false, error = false) {
+  $status.textContent = text;
+  $dot.classList.toggle("active", active && !error);
+  $dot.classList.toggle("error",  error);
 }
 
-
-function log(
-  source,
-  text
-){
-
-  const p =
-    document.createElement(
-      "p"
-    );
-
-  p.textContent =
-    source +
-    ": " +
-    text;
-
-  logEl.prepend(p);
+/* ───────────────────────────────────────────────────────────
+   LOG
+─────────────────────────────────────────────────────────── */
+function addLog(tag, text, cls = "") {
+  const p = document.createElement("p");
+  p.innerHTML = `<span class="tag ${cls}">[${tag}]</span> ${escHtml(text.slice(0, 200))}`;
+  $log.prepend(p);
 }
 
-
-function clamp(
-  value,
-  min,
-  max
-){
-
-  return Math.min(
-    max,
-    Math.max(
-      min,
-      value
-    )
-  );
+function escHtml(s) {
+  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
 }
 
-
-/* -------------------------
-   VOICE LOADING
-------------------------- */
-
-function getVoices(){
-
-  return speechSynthesis
-    .getVoices()
-    .filter(
-      voice =>
-        voice &&
-        voice.name
-    );
+/* ───────────────────────────────────────────────────────────
+   RENDER REPLY
+─────────────────────────────────────────────────────────── */
+function render(text) {
+  $reply.textContent = "";
+  const parts = String(text).split(/(```[\s\S]*?```)/g);
+  for (const part of parts) {
+    if (part.startsWith("```") && part.endsWith("```")) {
+      const pre  = document.createElement("pre");
+      const code = document.createElement("code");
+      code.textContent = part.replace(/^```[^\n]*\n?/, "").replace(/```$/, "");
+      pre.appendChild(code);
+      $reply.appendChild(pre);
+    } else if (part.trim()) {
+      const span = document.createElement("span");
+      span.textContent = part;
+      $reply.appendChild(span);
+    }
+  }
 }
 
+function showThinking() {
+  $reply.innerHTML = '<div class="thinking"><span></span><span></span><span></span></div>';
+}
 
-function loadVoices(){
-
-  voices =
-    getVoices();
-
-
-  voiceSelect.innerHTML =
-    "";
-
-
-  if(!voices.length){
-
-    const option =
-      document.createElement(
-        "option"
-      );
-
-    option.textContent =
-      "Browser voices unavailable";
-
-    option.value = "";
-
-    voiceSelect.appendChild(
-      option
-    );
-
+/* ───────────────────────────────────────────────────────────
+   VOICES
+─────────────────────────────────────────────────────────── */
+function loadVoices() {
+  voices = speechSynthesis.getVoices().filter(v => v && v.name);
+  $voiceSel.innerHTML = "";
+  if (!voices.length) {
+    $voiceSel.innerHTML = '<option value="">No voices</option>';
     return;
   }
-
-
-  /*
-   * Prefer English voices, but don't
-   * hide other voices if the browser
-   * provides them.
-   */
-  const english =
-    voices.filter(
-      voice =>
-        /^en(-|_)/i.test(
-          voice.lang
-        )
-    );
-
-
-  const list =
-    english.length
-      ? english
-      : voices;
-
-
-  list.forEach(
-    voice => {
-
-      const option =
-        document.createElement(
-          "option"
-        );
-
-      option.value =
-        String(
-          voices.indexOf(
-            voice
-          )
-        );
-
-      option.textContent =
-        voice.name +
-        " — " +
-        voice.lang;
-
-      voiceSelect.appendChild(
-        option
-      );
-    }
-  );
-
-
-  /*
-   * Pick a reasonable voice initially.
-   * Microsoft Zira / Google US are usually
-   * more natural than the old default voice.
-   */
-  const preferred =
-    list.findIndex(
-      voice =>
-        /zira|google us english/i
-          .test(voice.name)
-    );
-
-
-  if(preferred >= 0){
-
-    const actualIndex =
-      voices.indexOf(
-        list[preferred]
-      );
-
-    voiceSelect.value =
-      String(actualIndex);
-  }
+  const en   = voices.filter(v => /^en(-|_)/i.test(v.lang));
+  const list = en.length ? en : voices;
+  list.forEach(v => {
+    const opt = document.createElement("option");
+    opt.value = String(voices.indexOf(v));
+    opt.textContent = v.name + " — " + v.lang;
+    $voiceSel.appendChild(opt);
+  });
+  const pref = list.findIndex(v => /zira|google us english/i.test(v.name));
+  if (pref >= 0) $voiceSel.value = String(voices.indexOf(list[pref]));
 }
-
-
 loadVoices();
+speechSynthesis.onvoiceschanged = loadVoices;
+setTimeout(loadVoices, 300);
+setTimeout(loadVoices, 1000);
 
-speechSynthesis.onvoiceschanged =
-  loadVoices;
-
-
-/*
- * Some browsers populate voices slightly
- * after page load.
- */
-setTimeout(
-  loadVoices,
-  300
-);
-
-setTimeout(
-  loadVoices,
-  1000
-);
-
-
-/* -------------------------
-   RENDERING
-------------------------- */
-
-function render(text){
-
-  reply.textContent =
-    "";
-
-  const parts =
-    String(text)
-      .split(
-        /(```[\s\S]*?```)/g
-      );
-
-
-  for(
-    const part of parts
-  ){
-
-    if(
-      part.startsWith("```") &&
-      part.endsWith("```")
-    ){
-
-      const pre =
-        document.createElement(
-          "pre"
-        );
-
-      const code =
-        document.createElement(
-          "code"
-        );
-
-
-      code.textContent =
-        part
-          .replace(
-            /^```[^\n]*\n?/,
-            ""
-          )
-          .replace(
-            /```$/,
-            ""
-          );
-
-
-      pre.appendChild(
-        code
-      );
-
-      reply.appendChild(
-        pre
-      );
-
-
-    }else if(
-      part.trim()
-    ){
-
-      const span =
-        document.createElement(
-          "span"
-        );
-
-      span.textContent =
-        part;
-
-      reply.appendChild(
-        span
-      );
-    }
-  }
-}
-
-
-/* -------------------------
-   SPEECH NORMALIZATION
-------------------------- */
-
-function speechText(
-  text
-){
-
+/* ───────────────────────────────────────────────────────────
+   SPEECH TEXT NORMALIZATION
+─────────────────────────────────────────────────────────── */
+function toSpeech(text) {
   return String(text)
-
-    /*
-     * Never read code aloud.
-     */
-    .replace(
-      /```[\s\S]*?```/g,
-      "I've outputted the code for you."
-    )
-
-    .replace(
-      /\[([^\]]+)\]\([^)]*\)/g,
-      "$1"
-    )
-
-    .replace(
-      /[*_~`#>]/g,
-      ""
-    )
-
-    /*
-     * Acronyms.
-     */
-    .replace(
-      /\bOrbitOS\b/gi,
-      "Orbit O S"
-    )
-
-    .replace(
-      /\bOrbit OS\b/gi,
-      "Orbit O S"
-    )
-
-    .replace(
-      /\bAPI\b/gi,
-      "A P I"
-    )
-
-    .replace(
-      /\bJSON\b/gi,
-      "J S O N"
-    )
-
-    .replace(
-      /\bHTML\b/gi,
-      "H T M L"
-    )
-
-    .replace(
-      /\bCSS\b/gi,
-      "C S S"
-    )
-
-    .replace(
-      /\bPWA\b/gi,
-      "P W A"
-    )
-
-    .replace(
-      /\bURL\b/gi,
-      "U R L"
-    )
-
-    .replace(
-      /\bUI\b/gi,
-      "U I"
-    )
-
-    .replace(
-      /\bUX\b/gi,
-      "U X"
-    )
-
-    .replace(
-      /\bOS\b/gi,
-      "O S"
-    )
-
-    .replace(
-      /\bAI\b/gi,
-      "A I"
-    )
-
-    .replace(
-      /\bCPU\b/gi,
-      "C P U"
-    )
-
-    .replace(
-      /\bGPU\b/gi,
-      "G P U"
-    )
-
-    .replace(
-      /\bRAM\b/gi,
-      "R A M"
-    )
-
-    /*
-     * Natural pauses.
-     */
-    .replace(
-      /—/g,
-      " … "
-    )
-
-    .replace(
-      /\.{3}/g,
-      " … "
-    )
-
-    .replace(
-      /\s+/g,
-      " "
-    )
-
+    .replace(/```[\s\S]*?```/g, "I've displayed the code.")
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+    .replace(/[*_~`#>]/g, "")
+    .replace(/\b(API|JSON|HTML|CSS|PWA|URL|UI|UX|OS|AI|CPU|GPU|RAM|SQL|RLS|JWT|UUID)\b/gi,
+             m => m.split("").join(" "))
+    .replace(/—/g, " … ")
+    .replace(/\.{3}/g, " … ")
+    .replace(/\s+/g, " ")
     .trim();
 }
 
+/* ───────────────────────────────────────────────────────────
+   SPEAK
+─────────────────────────────────────────────────────────── */
+function speak(text, autoPitch) {
+  return new Promise(resolve => {
+    const clean = toSpeech(text);
+    if (!clean) { resolve(); return; }
 
-/* -------------------------
-   SPEECH
-------------------------- */
+    speechSynthesis.cancel();
+    const utt = new SpeechSynthesisUtterance(clean);
 
-function speak(
-  text,
-  automaticPitch
-){
+    const avail = speechSynthesis.getVoices();
+    const idx   = Number($voiceSel.value);
+    if (Number.isInteger(idx) && avail[idx]) utt.voice = avail[idx];
 
-  return new Promise(
-    resolve => {
+    let rate   = prefs.rate;
+    let pitch  = prefs.pitch;
+    let volume = prefs.volume;
 
-      const clean =
-        speechText(text);
-
-
-      if(!clean){
-
-        resolve();
-
-        return;
-      }
-
-
-      /*
-       * Cancel anything still queued.
-       */
-      speechSynthesis.cancel();
-
-
-      const utterance =
-        new SpeechSynthesisUtterance(
-          clean
-        );
-
-
-      /*
-       * ALWAYS resolve the currently
-       * selected browser voice.
-       */
-      const available =
-        getVoices();
-
-      const selectedIndex =
-        Number(
-          voiceSelect.value
-        );
-
-
-      if(
-        Number.isInteger(
-          selectedIndex
-        ) &&
-        available[selectedIndex]
-      ){
-
-        utterance.voice =
-          available[selectedIndex];
-      }
-
-
-      /*
-       * Start with manual controls.
-       */
-      let rate =
-        preferences.rate;
-
-      let pitch =
-        preferences.pitch;
-
-      let volume =
-        preferences.volume;
-
-
-      /*
-       * PITCH_KEY may override those
-       * values ONLY when Auto Voice is ON.
-       */
-      if(
-        preferences.automaticVoice &&
-        automaticPitch
-      ){
-
-        if(
-          Number.isFinite(
-            Number(
-              automaticPitch.rate
-            )
-          )
-        ){
-
-          rate =
-            clamp(
-              Number(
-                automaticPitch.rate
-              ),
-              .75,
-              1.15
-            );
-        }
-
-
-        if(
-          Number.isFinite(
-            Number(
-              automaticPitch.pitch
-            )
-          )
-        ){
-
-          pitch =
-            clamp(
-              Number(
-                automaticPitch.pitch
-              ),
-              .60,
-              1.40
-            );
-        }
-
-
-        if(
-          Number.isFinite(
-            Number(
-              automaticPitch.volume
-            )
-          )
-        ){
-
-          volume =
-            clamp(
-              Number(
-                automaticPitch.volume
-              ),
-              .70,
-              1
-            );
-        }
-      }
-
-
-      utterance.rate =
-        rate;
-
-      utterance.pitch =
-        pitch;
-
-      utterance.volume =
-        volume;
-
-
-      speaking =
-        true;
-
-
-      setStatus(
-        "Speaking",
-        true
-      );
-
-
-      utterance.onend =
-        () => {
-
-          speaking =
-            false;
-
-          resolve();
-        };
-
-
-      utterance.onerror =
-        () => {
-
-          speaking =
-            false;
-
-          resolve();
-        };
-
-
-      speechSynthesis.speak(
-        utterance
-      );
+    if (prefs.automaticVoice && autoPitch) {
+      if (isFinite(+autoPitch.rate))   rate   = clamp(+autoPitch.rate,   .75, 1.15);
+      if (isFinite(+autoPitch.pitch))  pitch  = clamp(+autoPitch.pitch,  .60, 1.40);
+      if (isFinite(+autoPitch.volume)) volume = clamp(+autoPitch.volume, .70, 1);
     }
-  );
+
+    utt.rate   = rate;
+    utt.pitch  = pitch;
+    utt.volume = volume;
+
+    speaking = true;
+    setStatus("Speaking", true);
+
+    utt.onend  = () => { speaking = false; resolve(); };
+    utt.onerror= () => { speaking = false; resolve(); };
+    speechSynthesis.speak(utt);
+  });
 }
 
+function clamp(v, mn, mx) { return Math.min(mx, Math.max(mn, v)); }
 
-/* -------------------------
-   CONSTANT LISTENING
-------------------------- */
+/* ───────────────────────────────────────────────────────────
+   ASK AURA
+─────────────────────────────────────────────────────────── */
+async function ask(text) {
+  if (busy || speaking || !text.trim()) return;
+  busy    = true;
+  waiting = false;
+  clearTimeout(wakeTimer);
+  try { recognition?.stop(); } catch(_) {}
 
-function startListening(){
+  setStatus("Thinking", true);
+  $heard.innerHTML = `<span>You:</span> ${escHtml(text)}`;
+  showThinking();
+  addLog("YOU", text);
 
-  if(
-    !recognition ||
-    !listening ||
-    busy ||
-    speaking
-  ){
-
-    return;
-  }
-
-
-  try{
-
-    recognition.start();
-
-  }catch(error){
-
-    /*
-     * Chrome throws if recognition is
-     * already running. That's harmless.
-     */
-    if(
-      !String(
-        error.message
-      )
-        .toLowerCase()
-        .includes(
-          "already started"
-        )
-    ){
-
-      setTimeout(
-        () => {
-
-          if(
-            listening &&
-            !busy &&
-            !speaking
-          ){
-
-            startListening();
-          }
-
-        },
-        300
-      );
-    }
-  }
-}
-
-
-/* -------------------------
-   AURA
-------------------------- */
-
-async function askAURA(
-  text
-){
-
-  if(
-    busy ||
-    speaking ||
-    !text.trim()
-  ){
-
-    return;
-  }
-
-
-  busy =
-    true;
-
-  waiting =
-    false;
-
-
-  clearTimeout(
-    wakeTimer
-  );
-
-
-  try{
-    recognition?.stop();
-  }catch(_){}
-
-
-  setStatus(
-    "Thinking",
-    true
-  );
-
-
-  heard.textContent =
-    "You: " +
-    text;
-
-  reply.textContent =
-    "";
-
-
-  log(
-    "YOU",
-    text
-  );
-
-
-  try{
-
-    const response =
-      await fetch(
-        AURA_URL,
-        {
-          method:"POST",
-
-          headers:{
-            "Content-Type":
-              "application/json",
-
-            "apikey":
-              SUPABASE_KEY
-          },
-
-          body:JSON.stringify({
-
-            message:text,
-
-            history:
-              conversation
-                .slice(-12),
-
-            preferences
-
-          })
-        }
-      );
-
+  try {
+    const res = await fetch(AURA_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": SUPABASE_KEY,
+      },
+      body: JSON.stringify({
+        message:     text,
+        history:     conversation.slice(-12),
+        preferences: prefs,
+      }),
+    });
 
     let data;
-
-
-    try{
-
-      data =
-        await response.json();
-
-    }catch(_){
-
-      throw new Error(
-        "AURA returned an invalid response."
-      );
-    }
-
-
-    if(
-      !response.ok
-    ){
-
-      throw new Error(
-        data.error ||
-        "AURA request failed."
-      );
-    }
-
-
-    if(
-      !data.text
-    ){
-
-      throw new Error(
-        "AURA returned no response."
-      );
-    }
-
+    try { data = await res.json(); } catch(_) { throw new Error("Invalid response from AURA."); }
+    if (!res.ok)  throw new Error(data.error || `HTTP ${res.status}`);
+    if (!data.text) throw new Error("AURA returned an empty response.");
 
     conversation.push(
-
-      {
-        role:"user",
-        content:text
-      },
-
-      {
-        role:"assistant",
-        content:data.text
-      }
-
+      { role: "user",      content: text },
+      { role: "assistant", content: data.text }
     );
+    if (conversation.length > 24) conversation.splice(0, conversation.length - 24);
 
+    render(data.text);
+    addLog("AURA", data.text, "tag-aura");
 
-    if(
-      conversation.length >
-      24
-    ){
+    await speak(data.spoken || data.text, data.pitch);
 
-      conversation.splice(
-        0,
-        conversation.length - 24
-      );
-    }
-
-
-    render(
-      data.text
-    );
-
-
-    log(
-      "AURA",
-      data.text
-    );
-
-
-    /*
-     * Voice starts as soon as the AI
-     * response has arrived.
-     */
-    await speak(
-      data.spoken ||
-      data.text,
-      data.pitch
-    );
-
-
-  }catch(error){
-
-    reply.textContent =
-      error.message;
-
-    log(
-      "ERROR",
-      error.message
-    );
-
-    setStatus(
-      "Error"
-    );
-
-
-  }finally{
-
-    busy =
-      false;
-
-
-    if(
-      listening &&
-      !speaking
-    ){
-
-      waiting =
-        true;
-
-      setStatus(
-        "Listening",
-        true
-      );
-
-
-      setTimeout(
-        startListening,
-        200
-      );
-
-
-    }else if(
-      !listening
-    ){
-
-      setStatus(
-        "Ready"
-      );
+  } catch(err) {
+    $reply.textContent = err.message;
+    addLog("ERROR", err.message, "tag-err");
+    setStatus("Error", false, true);
+  } finally {
+    busy = false;
+    if (listening && !speaking) {
+      waiting = true;
+      setStatus("Listening", true);
+      setTimeout(startListening, 200);
+    } else if (!listening) {
+      setStatus("Ready");
     }
   }
 }
 
-
-/* -------------------------
+/* ───────────────────────────────────────────────────────────
    WAKE WORD
-------------------------- */
+─────────────────────────────────────────────────────────── */
+function processSpeech(text) {
+  text = text.trim();
+  if (!text || busy || speaking) return;
 
-function processSpeech(
-  text
-){
+  if (!waiting) { ask(text); return; }
 
-  text =
-    text.trim();
+  const match = text.match(/^(?:(?:hey|okay|ok|yo)\s+)?aura\b[\s,:-]*(.*)?$/i);
+  if (!match) return;
 
+  waiting = false;
+  const cmd = (match[1] || "").trim();
+  if (cmd) { ask(cmd); return; }
 
-  if(
-    !text ||
-    busy ||
-    speaking
-  ){
-
-    return;
-  }
-
-
-  /*
-   * Once AURA has been activated,
-   * the next sentence is the command.
-   */
-  if(!waiting){
-
-    askAURA(
-      text
-    );
-
-    return;
-  }
-
-
-  const match =
-    text.match(
-      /^(?:(?:hey|yo|okay|ok)\s+)?aura\b[\s,:-]*(.*)$/i
-    );
-
-
-  if(!match){
-
-    return;
-  }
-
-
-  waiting =
-    false;
-
-
-  const command =
-    match[1].trim();
-
-
-  if(command){
-
-    askAURA(
-      command
-    );
-
-    return;
-  }
-
-
-  heard.textContent =
-    "AURA is listening…";
-
-
-  setStatus(
-    "Listening",
-    true
-  );
-
-
-  clearTimeout(
-    wakeTimer
-  );
-
-
-  wakeTimer =
-    setTimeout(
-      () => {
-
-        if(
-          !busy &&
-          !speaking
-        ){
-
-          waiting =
-            true;
-
-          heard.textContent =
-            "Say “AURA” to get my attention.";
-        }
-
-      },
-      5000
-    );
+  $heard.innerHTML = "AURA is listening…";
+  setStatus("Listening", true);
+  clearTimeout(wakeTimer);
+  wakeTimer = setTimeout(() => {
+    if (!busy && !speaking) {
+      waiting = true;
+      $heard.innerHTML = `<span>Say "AURA" to get my attention.</span>`;
+    }
+  }, 5000);
 }
 
-
-/* -------------------------
+/* ───────────────────────────────────────────────────────────
    SPEECH RECOGNITION
-------------------------- */
-
-const Recognition =
-  window.SpeechRecognition ||
-  window.webkitSpeechRecognition;
-
-
-if(!Recognition){
-
-  setStatus(
-    "Speech recognition unavailable"
-  );
-
-  listenBtn.disabled =
-    true;
-
-}else{
-
-  recognition =
-    new Recognition();
-
-
-  recognition.continuous =
-    true;
-
-  recognition.interimResults =
-    true;
-
-  recognition.lang =
-    "en-US";
-
-
-  recognition.onstart =
-    () => {
-
-      setStatus(
-        "Listening",
-        true
-      );
-    };
-
-
-  recognition.onresult =
-    event => {
-
-      let finalText =
-        "";
-
-      let interim =
-        "";
-
-
-      for(
-        let i =
-          event.resultIndex;
-
-        i <
-          event.results.length;
-
-        i++
-      ){
-
-        const result =
-          event.results[i];
-
-
-        if(
-          result.isFinal
-        ){
-
-          finalText +=
-            result[0].transcript;
-
-        }else{
-
-          interim +=
-            result[0].transcript;
-        }
-      }
-
-
-      if(
-        interim &&
-        !busy &&
-        !speaking
-      ){
-
-        heard.textContent =
-          interim;
-      }
-
-
-      if(finalText){
-
-        processSpeech(
-          finalText
-        );
-      }
-    };
-
-
-  recognition.onerror =
-    event => {
-
-      if(
-        event.error ===
-          "not-allowed" ||
-
-        event.error ===
-          "service-not-allowed"
-      ){
-
-        listening =
-          false;
-
-
-        listenBtn.textContent =
-          "CONSTANT LISTENING: OFF";
-
-
-        listenBtn.classList.remove(
-          "active"
-        );
-
-
-        setStatus(
-          "Microphone permission required"
-        );
-
-
-        return;
-      }
-
-
-      if(listening){
-
-        setTimeout(
-          startListening,
-          500
-        );
-      }
-    };
-
-
-  recognition.onend =
-    () => {
-
-      if(
-        listening &&
-        !busy &&
-        !speaking
-      ){
-
-        setTimeout(
-          startListening,
-          200
-        );
-      }
-    };
-}
-
-
-/* -------------------------
-   CONSTANT LISTENING BUTTON
-------------------------- */
-
-listenBtn.onclick =
-  () => {
-
-    if(!listening){
-
-      listening =
-        true;
-
-      waiting =
-        true;
-
-
-      listenBtn.textContent =
-        "CONSTANT LISTENING: ON";
-
-
-      listenBtn.classList.add(
-        "active"
-      );
-
-
-      heard.textContent =
-        "Say “AURA” to get my attention.";
-
-
-      setStatus(
-        "Listening",
-        true
-      );
-
-
-      startListening();
-
-
-    }else{
-
-      listening =
-        false;
-
-      waiting =
-        true;
-
-
-      speechSynthesis.cancel();
-
-
-      clearTimeout(
-        wakeTimer
-      );
-
-
-      try{
-        recognition?.stop();
-      }catch(_){}
-
-
-      listenBtn.textContent =
-        "CONSTANT LISTENING: OFF";
-
-
-      listenBtn.classList.remove(
-        "active"
-      );
-
-
-      setStatus(
-        "Ready"
-      );
-
-
-      heard.textContent =
-        "Say “AURA” to get my attention.";
+─────────────────────────────────────────────────────────── */
+const Recog = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+if (!Recog) {
+  setStatus("Speech recognition unavailable");
+  $listenBtn.disabled = true;
+} else {
+  recognition = new Recog();
+  recognition.continuous     = true;
+  recognition.interimResults = true;
+  recognition.lang           = "en-US";
+
+  recognition.onresult = e => {
+    let final = "", interim = "";
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      e.results[i].isFinal
+        ? (final   += e.results[i][0].transcript)
+        : (interim += e.results[i][0].transcript);
     }
+    if (interim && !busy && !speaking) $heard.textContent = interim;
+    if (final) processSpeech(final);
   };
 
-
-/* -------------------------
-   AUTO VOICE
-------------------------- */
-
-autoVoiceBtn.onclick =
-  () => {
-
-    preferences.automaticVoice =
-      !preferences.automaticVoice;
-
-
-    autoVoiceBtn.textContent =
-      "AUTO VOICE: " +
-      (
-        preferences.automaticVoice
-          ? "ON"
-          : "OFF"
-      );
-
-
-    autoVoiceBtn.classList.toggle(
-      "active",
-      preferences.automaticVoice
-    );
-
-
-    /*
-     * Actually disable/enable the
-     * manual controls visually.
-     */
-    const disabled =
-      preferences.automaticVoice;
-
-
-    rateControl.disabled =
-      disabled;
-
-    pitchControl.disabled =
-      disabled;
-
-    volumeControl.disabled =
-      disabled;
-
-
-    rateControl.parentElement.classList.toggle(
-      "disabled",
-      disabled
-    );
-
-    pitchControl.parentElement.classList.toggle(
-      "disabled",
-      disabled
-    );
-
-    volumeControl.parentElement.classList.toggle(
-      "disabled",
-      disabled
-    );
-
-
-    voiceMode.textContent =
-      disabled
-        ? "Automatic voice direction is enabled."
-        : "Manual voice controls are enabled.";
-
-
-    /*
-     * If AURA is currently speaking,
-     * stop it so the next response uses
-     * the newly selected mode.
-     */
-    if(speaking){
-
-      speechSynthesis.cancel();
-
-      speaking =
-        false;
-
-      setStatus(
-        listening
-          ? "Listening"
-          : "Ready",
-        listening
-      );
+  recognition.onerror = e => {
+    if (e.error === "not-allowed" || e.error === "service-not-allowed") {
+      listening = false;
+      $listenBtn.textContent = "LISTEN: OFF";
+      $listenBtn.classList.remove("on");
+      setStatus("Microphone permission required", false, true);
+      return;
     }
+    if (listening) setTimeout(startListening, 500);
   };
 
-
-/* -------------------------
-   VOICE SELECTOR
-------------------------- */
-
-voiceSelect.onchange =
-  () => {
-
-    const selected =
-      getVoices()[
-        Number(
-          voiceSelect.value
-        )
-      ];
-
-
-    if(selected){
-
-      log(
-        "VOICE",
-        selected.name +
-        " (" +
-        selected.lang +
-        ")"
-      );
-
-
-      /*
-       * Don't interrupt a sentence.
-       * The selected voice will be used
-       * on the next response.
-       */
-    }
+  recognition.onend = () => {
+    if (listening && !busy && !speaking) setTimeout(startListening, 200);
   };
-
-
-/* -------------------------
-   MANUAL CONTROLS
-------------------------- */
-
-function updateRate(){
-
-  preferences.rate =
-    clamp(
-      Number(
-        rateControl.value
-      ),
-      .75,
-      1.15
-    );
-
-
-  rateValue.textContent =
-    preferences.rate.toFixed(2);
 }
 
-
-function updatePitch(){
-
-  preferences.pitch =
-    clamp(
-      Number(
-        pitchControl.value
-      ),
-      .60,
-      1.40
-    );
-
-
-  pitchValue.textContent =
-    preferences.pitch.toFixed(2);
+function startListening() {
+  if (!recognition || !listening || busy || speaking) return;
+  try { recognition.start(); } catch(e) {
+    if (!String(e.message).toLowerCase().includes("already started")) {
+      setTimeout(() => { if (listening && !busy && !speaking) startListening(); }, 300);
+    }
+  }
 }
 
+/* ───────────────────────────────────────────────────────────
+   LISTEN BUTTON
+─────────────────────────────────────────────────────────── */
+$listenBtn.onclick = () => {
+  if (!listening) {
+    listening = true;
+    waiting   = true;
+    $listenBtn.innerHTML = `
+      <svg class="btn-icon" viewBox="0 0 24 24">
+        <rect x="9" y="2" width="6" height="13" rx="3"/>
+        <path d="M5 10a7 7 0 0014 0"/>
+        <line x1="12" y1="19" x2="12" y2="23"/>
+        <line x1="8" y1="23" x2="16" y2="23"/>
+      </svg>
+      LISTEN: ON`;
+    $listenBtn.classList.add("on");
+    $heard.innerHTML = `<span>Say "AURA" to get my attention.</span>`;
+    setStatus("Listening", true);
+    startListening();
+  } else {
+    listening = false;
+    waiting   = true;
+    speechSynthesis.cancel();
+    clearTimeout(wakeTimer);
+    try { recognition?.stop(); } catch(_) {}
+    $listenBtn.innerHTML = `
+      <svg class="btn-icon" viewBox="0 0 24 24">
+        <rect x="9" y="2" width="6" height="13" rx="3"/>
+        <path d="M5 10a7 7 0 0014 0"/>
+        <line x1="12" y1="19" x2="12" y2="23"/>
+        <line x1="8" y1="23" x2="16" y2="23"/>
+      </svg>
+      LISTEN: OFF`;
+    $listenBtn.classList.remove("on");
+    setStatus("Ready");
+    $heard.innerHTML = `<span>Say "AURA" to get my attention.</span>`;
+  }
+};
 
-function updateVolume(){
+/* ───────────────────────────────────────────────────────────
+   AUTO VOICE TOGGLE
+─────────────────────────────────────────────────────────── */
+$autoVoice.onclick = () => {
+  prefs.automaticVoice = !prefs.automaticVoice;
+  const on = prefs.automaticVoice;
+  $autoVoice.innerHTML = `
+    <svg class="btn-icon" viewBox="0 0 24 24">
+      <path d="M2 12h2M6 8v8M10 5v14M14 8v8M18 6v12M22 10v4"/>
+    </svg>
+    AUTO VOICE: ${on ? "ON" : "OFF"}`;
+  $autoVoice.classList.toggle("on", on);
 
-  preferences.volume =
-    clamp(
-      Number(
-        volumeControl.value
-      ),
-      .70,
-      1
-    );
+  [$rateSlider, $pitchSlider, $volSlider].forEach(s => s.disabled = on);
+  $autoNote.textContent = on
+    ? "Auto voice is on — AURA adjusts delivery per response."
+    : "Manual controls active.";
 
+  if (speaking) { speechSynthesis.cancel(); speaking = false; setStatus(listening ? "Listening" : "Ready", listening); }
+};
 
-  volumeValue.textContent =
-    preferences.volume.toFixed(2);
+/* ───────────────────────────────────────────────────────────
+   SLIDERS
+─────────────────────────────────────────────────────────── */
+function syncSliders() {
+  prefs.rate   = clamp(+$rateSlider.value,  .75, 1.15);
+  prefs.pitch  = clamp(+$pitchSlider.value, .60, 1.40);
+  prefs.volume = clamp(+$volSlider.value,   .70, 1);
+  $rateVal.textContent  = prefs.rate.toFixed(2);
+  $pitchVal.textContent = prefs.pitch.toFixed(2);
+  $volVal.textContent   = prefs.volume.toFixed(2);
 }
+$rateSlider.oninput  = syncSliders;
+$pitchSlider.oninput = syncSliders;
+$volSlider.oninput   = syncSliders;
+syncSliders();
 
-
-rateControl.addEventListener(
-  "input",
-  updateRate
-);
-
-pitchControl.addEventListener(
-  "input",
-  updatePitch
-);
-
-volumeControl.addEventListener(
-  "input",
-  updateVolume
-);
-
-
-updateRate();
-updatePitch();
-updateVolume();
-
-
-/*
- * Auto Voice starts ON, so the sliders
- * are disabled until the user turns it OFF.
- */
-rateControl.disabled =
-  true;
-
-pitchControl.disabled =
-  true;
-
-volumeControl.disabled =
-  true;
-
-
-/* -------------------------
-   PWA
-------------------------- */
-
-if(
-  "serviceWorker" in navigator
-){
-
-  navigator.serviceWorker
-    .register("./sw.js")
-    .catch(
-      error =>
-        log(
-          "PWA",
-          error.message
-        )
-    );
-}
+/* ───────────────────────────────────────────────────────────
+   VOICE SELECT
+─────────────────────────────────────────────────────────── */
+$voiceSel.onchange = () => {
+  const v = speechSynthesis.getVoices()[+$voiceSel.value];
+  if (v) addLog("VOICE", v.name + " (" + v.lang + ")");
+};
 
 </script>
-
 </body>
 </html>

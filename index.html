@@ -3,1677 +3,673 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#0b0c0f">
-<link rel="manifest" href="./manifest.json">
-<link rel="icon" href="./favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#f5f4f0">
 <title>A.U.R.A</title>
-
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Didact+Gothic&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box}
-:root{
-  --bg:#0b0c0f;
-  --surface:#101217;
-  --border:#20232a;
-  --text:#e5e7eb;
-  --muted:#858b96;
-  --dim:#555b65;
-  --accent:#8aa2ff
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #f5f4f0;
+  --surface: #eceae4;
+  --text: #1a1a1a;
+  --muted: #888;
+  --dim: #bbb;
+  --border: #dddbd5;
+  --green: #4a8c5c;
+  --red: #9b4040;
+  --f: 'Didact Gothic', sans-serif;
 }
-body{
-  margin:0;
-  min-height:100vh;
-  display:grid;
-  grid-template-columns:260px 1fr;
-  background:var(--bg);
-  color:var(--text);
-  font:14px system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--f);
 }
-aside{
-  border-right:1px solid var(--border);
-  padding:28px 22px;
-  display:flex;
-  flex-direction:column;
-  min-height:100vh
+
+body {
+  display: grid;
+  grid-template-columns: 210px 1fr;
+  min-height: 100vh;
 }
-.wordmark{
-  font-size:17px;
-  font-weight:600;
-  letter-spacing:.18em;
-  margin-bottom:42px
+
+aside {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 28px 18px;
+  gap: 28px;
 }
-.section{margin-bottom:30px}
-.label{
-  color:var(--dim);
-  font-size:10px;
-  letter-spacing:.12em;
-  text-transform:uppercase;
-  margin-bottom:9px
+
+.wordmark {
+  font-size: 11px;
+  letter-spacing: .22em;
+  color: var(--muted);
+  text-transform: uppercase;
 }
-.btn,.field,.project-select,.voice-sel{
-  width:100%;
-  border:1px solid var(--border);
-  background:var(--surface);
-  color:var(--text);
-  border-radius:4px;
-  font:inherit
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
-.btn{
-  padding:9px 11px;
-  cursor:pointer;
-  text-align:left
+
+.lbl {
+  font-size: 10px;
+  letter-spacing: .1em;
+  color: var(--dim);
+  text-transform: uppercase;
 }
-.btn:hover,.btn.on{
-  border-color:#39425a;
-  background:#151821
+
+input, select, button { font-family: var(--f); }
+
+.field {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  color: var(--text);
+  font-size: 12px;
+  padding: 7px 9px;
+  width: 100%;
+  outline: none;
 }
-.btn:disabled{
-  opacity:.45;
-  cursor:default
+.field::placeholder { color: var(--dim); }
+.field:focus { border-color: var(--muted); }
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
-.project-row{
-  display:flex;
-  align-items:center;
-  gap:8px
+
+.pip {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--dim);
+  flex-shrink: 0;
+  transition: background .3s;
 }
-.project-select,.voice-sel{
-  padding:9px 10px;
-  cursor:pointer
+.pip.live { background: var(--green); }
+.pip.err  { background: var(--red); }
+
+select.pick {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  color: var(--text);
+  font-family: var(--f);
+  font-size: 12px;
+  padding: 7px 9px;
+  flex: 1;
+  outline: none;
+  cursor: pointer;
 }
-.pip{
-  width:6px;
-  height:6px;
-  border-radius:50%;
-  background:#454a52;
-  flex:none
+select.pick:disabled { opacity: .4; cursor: default; }
+select.pick option { background: var(--bg); }
+
+.ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  color: var(--muted);
+  font-family: var(--f);
+  font-size: 11px;
+  padding: 6px 10px;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  transition: color .15s, border-color .15s;
 }
-.pip.live{background:#8aa2ff}
-.pip.err{background:#b56d6d}
-.conn-note{
-  margin-top:9px;
-  color:var(--dim);
-  font-size:11px;
-  line-height:1.5
+.ghost:hover { color: var(--text); border-color: var(--muted); }
+.ghost:disabled { opacity: .35; cursor: default; }
+
+.note {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.5;
 }
-.bottom{
-  margin-top:auto
+
+.bottom {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
-main{
-  min-width:0;
-  display:flex;
-  flex-direction:column;
-  min-height:100vh;
-  padding:28px 42px
+
+main {
+  display: flex;
+  flex-direction: column;
+  padding: 48px 56px;
+  max-width: 760px;
+  width: 100%;
 }
-.top-bar{
-  display:flex;
-  justify-content:space-between;
-  align-items:center
+
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 52px;
 }
-.status-text{
-  color:var(--muted);
-  font-size:12px
+
+.status {
+  font-size: 11px;
+  letter-spacing: .06em;
+  color: var(--muted);
 }
-.mic-btn{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  border:1px solid var(--border);
-  background:transparent;
-  color:var(--muted);
-  border-radius:4px;
-  padding:8px 11px;
-  cursor:pointer
+
+.mic-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  color: var(--muted);
+  font-family: var(--f);
+  font-size: 11px;
+  padding: 7px 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: color .15s, border-color .15s;
 }
-.mic-btn.on{
-  color:var(--text);
-  border-color:#39425a
+.mic-btn:hover { color: var(--text); border-color: var(--muted); }
+.mic-btn.on { color: var(--text); border-color: var(--muted); }
+.mic-btn svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+
+.heard {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 24px;
+  min-height: 18px;
 }
-.mic-btn svg{
-  width:15px;
-  height:15px;
-  fill:none;
-  stroke:currentColor;
-  stroke-width:1.5
+
+.reply {
+  font-size: 22px;
+  line-height: 1.65;
+  color: var(--text);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-width: 600px;
 }
-.heard{
-  margin-top:18vh;
-  color:var(--muted);
-  min-height:22px
+
+.reply pre {
+  margin-top: 20px;
+  padding: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  font-size: 12px;
+  font-family: ui-monospace, monospace;
+  overflow-x: auto;
+  color: var(--muted);
+  white-space: pre;
 }
-.reply{
-  margin-top:12px;
-  max-width:720px;
-  font-size:18px;
-  line-height:1.7;
-  white-space:pre-wrap;
-  overflow-wrap:anywhere
-}
-.reply pre{
-  margin-top:16px;
-  padding:14px;
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:4px;
-  font:12px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace;
-  overflow:auto;
-  color:var(--muted);
-  white-space:pre
-}
-.idle{
-  color:var(--dim);
-  font-size:14px
-}
-::-webkit-scrollbar{width:3px}
-::-webkit-scrollbar-thumb{background:var(--border)}
+
+.placeholder { font-size: 15px; color: var(--dim); }
+
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-thumb { background: var(--border); }
 </style>
 </head>
-
 <body>
 
 <aside>
-
   <div class="wordmark">AURA</div>
 
   <div class="section">
-
-    <div class="label">Supabase</div>
-
-    <button
-      class="btn"
-      id="loadBtn"
-      type="button"
-    >
-      Load projects
-    </button>
-
-    <div
-      class="conn-note"
-      id="connNote"
-    >
-      Connect through AURA's backend.
-    </div>
-
+    <div class="lbl">Project URL</div>
+    <input class="field" id="urlInput" type="text" placeholder="https://xyz.supabase.co" autocomplete="off" spellcheck="false">
+    <button class="ghost" id="connectBtn">Connect</button>
+    <div class="note" id="connNote"></div>
   </div>
-
 
   <div class="section">
-
-    <div class="label">Project</div>
-
-    <div class="project-row">
-
-      <span
-        class="pip"
-        id="pip"
-      ></span>
-
-      <select
-        class="project-select"
-        id="projectSelect"
-        disabled
-      >
-        <option value="">
-          — none —
-        </option>
+    <div class="lbl">Management</div>
+    <input class="field" id="patInput" type="text" placeholder="Personal access token (optional)" autocomplete="off" spellcheck="false">
+    <button class="ghost" id="loadBtn">Load projects</button>
+    <div class="row" style="margin-top:2px;">
+      <span class="pip" id="pip"></span>
+      <select class="pick" id="projectSelect" disabled>
+        <option value="">— none —</option>
       </select>
-
     </div>
-
+    <div class="note" id="mgmtNote">Token lets AURA list and inspect your projects.</div>
   </div>
-
 
   <div class="bottom">
-
-    <div class="label">Voice</div>
-
-    <select
-      class="voice-sel"
-      id="voiceSelect"
-    ></select>
-
-    <button
-      class="btn"
-      id="autoBtn"
-      type="button"
-      style="margin-top:8px"
-    >
-      Auto pitch: on
-    </button>
-
+    <div class="lbl">Voice</div>
+    <select class="pick" id="voiceSelect"></select>
+    <button class="ghost" id="autoBtn">Auto pitch: on</button>
   </div>
-
 </aside>
 
-
 <main>
-
-  <div class="top-bar">
-
-    <span
-      class="status-text"
-      id="statusText"
-    >
-      Ready
-    </span>
-
-    <button
-      class="mic-btn"
-      id="micBtn"
-      type="button"
-    >
+  <div class="bar">
+    <span class="status" id="statusText">Ready</span>
+    <button class="mic-btn" id="micBtn">
       <svg viewBox="0 0 24 24">
-        <rect
-          x="9"
-          y="2"
-          width="6"
-          height="13"
-          rx="3"
-        />
+        <rect x="9" y="2" width="6" height="13" rx="3"/>
         <path d="M5 10a7 7 0 0014 0"/>
-        <line
-          x1="12"
-          y1="19"
-          x2="12"
-          y2="23"
-        />
-        <line
-          x1="8"
-          y1="23"
-          x2="16"
-          y2="23"
-        />
+        <line x1="12" y1="19" x2="12" y2="23"/>
+        <line x1="8" y1="23" x2="16" y2="23"/>
       </svg>
       Mic off
     </button>
-
   </div>
 
+  <div class="heard" id="heard"></div>
 
-  <div
-    class="heard"
-    id="heard"
-  ></div>
-
-
-  <div
-    class="reply"
-    id="reply"
-  >
-    <span class="idle">
-      Connect a project and turn on the mic.
-    </span>
+  <div class="reply" id="reply">
+    <span class="placeholder">Say "AURA" followed by your question.</span>
   </div>
-
 </main>
 
-
 <script>
-const SUPABASE_PROJECT =
-  "tvxugmumfvgnvjacwwfz";
+const EDGE_SLUG = "aura-v3";
+const SB_MGMT  = "https://api.supabase.com";
 
-const AURA_URL =
-  "https://" +
-  SUPABASE_PROJECT +
-  ".supabase.co/functions/v1/aura-v3";
-
-
-/*
- * This is only the public/publishable key.
- * No Supabase Management token belongs here.
- */
-const AURA_KEY =
-  "sb_publishable_1mPqnw9hx5Vm0O_o4O_fsg_96YAhDuY";
-
-
-let projects = [];
-let activeProject = null;
+let auraUrl  = localStorage.getItem("aura_url")  || "";
+let auraKey  = localStorage.getItem("aura_key")  || "";
+let pat      = localStorage.getItem("aura_pat")  || "";
 let connected = false;
+let projects  = [];
 
 let recognition = null;
 let listening = false;
-let waiting = true;
-let busy = false;
-let speaking = false;
+let waiting   = true;
+let busy      = false;
+let speaking  = false;
 let wakeTimer = null;
-
 let autoPitchOn = true;
-let voices = [];
-
+let voices    = [];
 const conversation = [];
+const prefs = { rate: .94, pitch: .98, volume: 1 };
 
-const prefs = {
-  rate:.94,
-  pitch:.98,
-  volume:1
+const $urlInput  = document.getElementById("urlInput");
+const $connBtn   = document.getElementById("connectBtn");
+const $connNote  = document.getElementById("connNote");
+const $patInput  = document.getElementById("patInput");
+const $loadBtn   = document.getElementById("loadBtn");
+const $pip       = document.getElementById("pip");
+const $projSel   = document.getElementById("projectSelect");
+const $mgmtNote  = document.getElementById("mgmtNote");
+const $statusTxt = document.getElementById("statusText");
+const $heard     = document.getElementById("heard");
+const $reply     = document.getElementById("reply");
+const $micBtn    = document.getElementById("micBtn");
+const $autoBtn   = document.getElementById("autoBtn");
+const $voiceSel  = document.getElementById("voiceSelect");
+
+if (auraUrl) $urlInput.value = auraUrl;
+if (pat)     $patInput.value = pat;
+
+function setPip(s) {
+  $pip.className = "pip" + (s === "live" ? " live" : s === "err" ? " err" : "");
+}
+function setStatus(t) { $statusTxt.textContent = t; }
+
+async function probeEdge(url, key) {
+  const r = await fetch(url + "/functions/v1/" + EDGE_SLUG, {
+    method: "OPTIONS",
+    headers: key ? { apikey: key } : {}
+  });
+  return r.ok || r.status === 204 || r.status === 200;
+}
+
+async function fetchAnonKey(projectId) {
+  if (!pat) return "";
+  try {
+    const r = await fetch(SB_MGMT + "/v1/projects/" + projectId + "/api-keys", {
+      headers: { Authorization: "Bearer " + pat }
+    });
+    if (!r.ok) return "";
+    const keys = await r.json();
+    return (keys || []).find(k => k.name === "anon")?.api_key || "";
+  } catch { return ""; }
+}
+
+$connBtn.onclick = async () => {
+  const raw = $urlInput.value.trim().replace(/\/$/, "");
+  if (!raw) { $connNote.textContent = "Enter a Supabase project URL."; return; }
+
+  $connBtn.disabled = true;
+  $connBtn.textContent = "Connecting…";
+  $connNote.textContent = "";
+
+  const projectId = raw.replace("https://", "").split(".")[0];
+  let key = auraKey;
+
+  if (!key && pat) {
+    key = await fetchAnonKey(projectId);
+  }
+
+  try {
+    const ok = await probeEdge(raw, key);
+    if (ok) {
+      auraUrl = raw;
+      auraKey = key;
+      connected = true;
+      localStorage.setItem("aura_url", raw);
+      if (key) localStorage.setItem("aura_key", key);
+      $connNote.textContent = "Connected.";
+    } else {
+      $connNote.textContent = "Reached the project but the edge function didn't respond. Is aura-v3 deployed?";
+      auraUrl = raw;
+      auraKey = key;
+      connected = true;
+      localStorage.setItem("aura_url", raw);
+      if (key) localStorage.setItem("aura_key", key);
+    }
+  } catch(e) {
+    $connNote.textContent = "Could not reach " + raw;
+  }
+
+  $connBtn.disabled = false;
+  $connBtn.textContent = "Connect";
 };
 
-
-const $loadBtn =
-  document.getElementById("loadBtn");
-
-const $note =
-  document.getElementById("connNote");
-
-const $projSel =
-  document.getElementById("projectSelect");
-
-const $pip =
-  document.getElementById("pip");
-
-const $status =
-  document.getElementById("statusText");
-
-const $heard =
-  document.getElementById("heard");
-
-const $reply =
-  document.getElementById("reply");
-
-const $micBtn =
-  document.getElementById("micBtn");
-
-const $autoBtn =
-  document.getElementById("autoBtn");
-
-const $voiceSel =
-  document.getElementById("voiceSelect");
-
-
-function setPip(state){
-
-  $pip.className =
-    "pip" +
-    (
-      state === "live"
-        ? " live"
-        : state === "err"
-          ? " err"
-          : ""
-    );
+async function mgmt(path) {
+  const r = await fetch(SB_MGMT + path, {
+    headers: { Authorization: "Bearer " + pat }
+  });
+  if (!r.ok) throw new Error("Status " + r.status);
+  return r.json();
 }
 
-
-function setStatus(text){
-
-  $status.textContent =
-    text;
-}
-
-
-function setNote(text){
-
-  $note.textContent =
-    text;
-}
-
-
-/*
- * IMPORTANT:
- * This request goes to AURA, NOT
- * api.supabase.com.
- */
-async function mgmt(
-  path,
-  options = {}
-){
-
-  const response =
-    await fetch(
-      AURA_URL,
-      {
-        method:"POST",
-
-        headers:{
-          "Content-Type":
-            "application/json",
-
-          "apikey":
-            AURA_KEY
-        },
-
-        body:JSON.stringify({
-
-          action:
-            "supabase_management",
-
-          path,
-
-          method:
-            options.method ||
-            "GET",
-
-          body:
-            options.body ??
-            null
-        })
-      }
-    );
-
-
-  let data;
-
-  try{
-    data =
-      await response.json();
-  }catch(_){
-
-    throw new Error(
-      "AURA returned an invalid response."
-    );
-  }
-
-
-  if(!response.ok){
-
-    throw new Error(
-      data.error ||
-      "Supabase management request failed."
-    );
-  }
-
-
-  return data.data;
-}
-
-
-$loadBtn.onclick =
-  async () => {
-
-    $loadBtn.disabled =
-      true;
-
-    $loadBtn.textContent =
-      "Loading…";
-
-    setNote(
-      "Loading Supabase projects…"
-    );
-
-    setPip("");
-
-
-    try{
-
-      projects =
-        await mgmt(
-          "/v1/projects"
-        );
-
-
-      if(!Array.isArray(projects)){
-
-        throw new Error(
-          "Supabase returned an unexpected project list."
-        );
-      }
-
-
-      $projSel.innerHTML =
-        '<option value="">— select —</option>';
-
-
-      projects.forEach(
-        project => {
-
-          const option =
-            document.createElement(
-              "option"
-            );
-
-          option.value =
-            project.id;
-
-          option.textContent =
-            project.name ||
-            project.id;
-
-          $projSel.appendChild(
-            option
-          );
-        }
-      );
-
-
-      $projSel.disabled =
-        false;
-
-
-      setNote(
-        projects.length +
-        " project" +
-        (
-          projects.length !== 1
-            ? "s"
-            : ""
-        ) +
-        " loaded."
-      );
-
-
-      const saved =
-        localStorage.getItem(
-          "aura_project"
-        );
-
-
-      if(
-        saved &&
-        projects.some(
-          p =>
-            p.id === saved
-        )
-      ){
-
-        $projSel.value =
-          saved;
-
-        await activateProject(
-          saved
-        );
-      }
-
-    }catch(error){
-
-      setPip("err");
-
-      setNote(
-        error.message
-      );
-
-    }finally{
-
-      $loadBtn.disabled =
-        false;
-
-      $loadBtn.textContent =
-        "Load projects";
-    }
-  };
-
-
-async function activateProject(
-  id
-){
-
-  if(!id){
-
-    connected =
-      false;
-
-    activeProject =
-      null;
-
-    setPip("");
-
-    return;
-  }
-
-
+$loadBtn.onclick = async () => {
+  pat = $patInput.value.trim();
+  if (!pat) { $mgmtNote.textContent = "Paste a personal access token."; return; }
+  localStorage.setItem("aura_pat", pat);
+
+  $loadBtn.disabled = true;
+  $loadBtn.textContent = "Loading…";
+  $mgmtNote.textContent = "";
   setPip("");
 
-  setNote(
-    "Connecting…"
-  );
+  try {
+    projects = await mgmt("/v1/projects");
+    $projSel.innerHTML = '<option value="">— select —</option>';
+    projects.forEach(p => {
+      const o = document.createElement("option");
+      o.value = p.id;
+      o.textContent = p.name;
+      $projSel.appendChild(o);
+    });
+    $projSel.disabled = false;
+    $mgmtNote.textContent = projects.length + " project" + (projects.length !== 1 ? "s" : "") + ".";
 
-
-  try{
-
-    const detail =
-      await mgmt(
-        "/v1/projects/" +
-        encodeURIComponent(id)
-      );
-
-
-    const keysData =
-      await mgmt(
-        "/v1/projects/" +
-        encodeURIComponent(id) +
-        "/api-keys"
-      );
-
-
-    const anonKey =
-      Array.isArray(keysData)
-        ? (
-            keysData.find(
-              key =>
-                key.name ===
-                "anon"
-            )?.api_key ||
-            ""
-          )
-        : "";
-
-
-    if(!anonKey){
-
-      throw new Error(
-        "No anon key found for this project."
-      );
+    const saved = localStorage.getItem("aura_project");
+    if (saved && projects.find(p => p.id === saved)) {
+      $projSel.value = saved;
+      await activateProject(saved);
     }
+  } catch(e) {
+    $mgmtNote.textContent = "Couldn't load projects — check your token.";
+    setPip("err");
+  }
 
+  $loadBtn.disabled = false;
+  $loadBtn.textContent = "Load projects";
+};
 
-    activeProject =
-      detail;
+async function activateProject(id) {
+  if (!id) { setPip(""); connected = false; return; }
+  $mgmtNote.textContent = "Connecting…";
+  setPip("");
 
-    connected =
-      true;
+  try {
+    const detail = await mgmt("/v1/projects/" + id);
+    const key = await fetchAnonKey(id);
+    if (!key) throw new Error("No anon key returned.");
 
+    const url = "https://" + detail.id + ".supabase.co";
+    const ok = await probeEdge(url, key);
 
-    setPip(
-      "live"
-    );
+    auraUrl = url;
+    auraKey = key;
+    connected = true;
+    localStorage.setItem("aura_url", url);
+    localStorage.setItem("aura_key", key);
+    localStorage.setItem("aura_project", id);
+    $urlInput.value = url;
 
-
-    setNote(
-      detail.name ||
-      detail.id
-    );
-
-
-    localStorage.setItem(
-      "aura_project",
-      id
-    );
-
-
-    /*
-     * AURA itself remains connected to
-     * the fixed AURA project. The selected
-     * project is context for management
-     * operations.
-     */
-    activeProject.anonKey =
-      anonKey;
-
-  }catch(error){
-
-    connected =
-      false;
-
-    setPip(
-      "err"
-    );
-
-    setNote(
-      error.message
-    );
+    setPip(ok ? "live" : "err");
+    $mgmtNote.textContent = detail.name + (ok ? "" : " (edge function not found)");
+  } catch(e) {
+    setPip("err");
+    $mgmtNote.textContent = e.message;
   }
 }
 
+$projSel.onchange = () => activateProject($projSel.value);
 
-$projSel.onchange =
-  () =>
-    activateProject(
-      $projSel.value
-    );
+if (auraUrl) {
+  connected = true;
+  probeEdge(auraUrl, auraKey).then(ok => setPip(ok ? "live" : "err")).catch(() => setPip("err"));
+}
 
-
-function render(text){
-
-  $reply.textContent =
-    "";
-
-  const parts =
-    String(text)
-      .split(
-        /(```[\s\S]*?```)/g
-      );
-
-
-  for(
-    const part of parts
-  ){
-
-    if(
-      part.startsWith("```") &&
-      part.endsWith("```")
-    ){
-
-      const pre =
-        document.createElement(
-          "pre"
-        );
-
-      pre.textContent =
-        part
-          .replace(
-            /^```[^\n]*\n?/,
-            ""
-          )
-          .replace(
-            /```$/,
-            ""
-          );
-
-      $reply.appendChild(
-        pre
-      );
-
-    }else if(
-      part.trim()
-    ){
-
-      const span =
-        document.createElement(
-          "span"
-        );
-
-      span.textContent =
-        part;
-
-      $reply.appendChild(
-        span
-      );
+function render(text) {
+  $reply.textContent = "";
+  const parts = String(text).split(/(```[\s\S]*?```)/g);
+  for (const part of parts) {
+    if (part.startsWith("```") && part.endsWith("```")) {
+      const pre = document.createElement("pre");
+      pre.textContent = part.replace(/^```[^\n]*\n?/, "").replace(/```$/, "");
+      $reply.appendChild(pre);
+    } else if (part.trim()) {
+      $reply.appendChild(Object.assign(document.createElement("span"), { textContent: part }));
     }
   }
 }
 
-
-function toSpeech(text){
-
+function toSpeech(text) {
   return String(text)
-
-    .replace(
-      /```[\s\S]*?```/g,
-      "I've outputted the code."
-    )
-
-    .replace(
-      /\[([^\]]+)\]\([^)]*\)/g,
-      "$1"
-    )
-
-    .replace(
-      /[*_~`#>]/g,
-      ""
-    )
-
-    .replace(
-      /\b(API|JSON|HTML|CSS|URL|SQL|JWT|UUID)\b/gi,
-      match =>
-        match
-          .split("")
-          .join(" ")
-    )
-
-    .replace(
-      /\bOrbitOS\b/gi,
-      "Orbit O S"
-    )
-
-    .replace(
-      /—/g,
-      ", "
-    )
-
-    .replace(
-      /\s+/g,
-      " "
-    )
-
+    .replace(/```[\s\S]*?```/g, "I've displayed the code.")
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+    .replace(/[*_~`#>]/g, "")
+    .replace(/\b(API|JSON|HTML|CSS|URL|SQL|JWT|UUID)\b/gi, m => m.split("").join(" "))
+    .replace(/—/g, ", ")
+    .replace(/\s+/g, " ")
     .trim();
 }
 
+function speak(text, apd) {
+  return new Promise(resolve => {
+    const clean = toSpeech(text);
+    if (!clean) { resolve(); return; }
+    speechSynthesis.cancel();
 
-function speak(
-  text,
-  autoPitchData
-){
+    const utt = new SpeechSynthesisUtterance(clean);
+    const all = speechSynthesis.getVoices();
+    const idx = Number($voiceSel.value);
+    if (Number.isInteger(idx) && all[idx]) utt.voice = all[idx];
 
-  return new Promise(
-    resolve => {
-
-      const clean =
-        toSpeech(text);
-
-
-      if(!clean){
-
-        resolve();
-
-        return;
-      }
-
-
-      speechSynthesis.cancel();
-
-
-      const utterance =
-        new SpeechSynthesisUtterance(
-          clean
-        );
-
-
-      const all =
-        speechSynthesis.getVoices();
-
-
-      const index =
-        Number(
-          $voiceSel.value
-        );
-
-
-      if(
-        Number.isInteger(index) &&
-        all[index]
-      ){
-
-        utterance.voice =
-          all[index];
-      }
-
-
-      let rate =
-        prefs.rate;
-
-      let pitch =
-        prefs.pitch;
-
-      let volume =
-        prefs.volume;
-
-
-      if(
-        autoPitchOn &&
-        autoPitchData
-      ){
-
-        if(
-          Number.isFinite(
-            +autoPitchData.rate
-          )
-        ){
-
-          rate =
-            Math.min(
-              1.15,
-              Math.max(
-                .75,
-                +autoPitchData.rate
-              )
-            );
-        }
-
-
-        if(
-          Number.isFinite(
-            +autoPitchData.pitch
-          )
-        ){
-
-          pitch =
-            Math.min(
-              1.40,
-              Math.max(
-                .60,
-                +autoPitchData.pitch
-              )
-            );
-        }
-
-
-        if(
-          Number.isFinite(
-            +autoPitchData.volume
-          )
-        ){
-
-          volume =
-            Math.min(
-              1,
-              Math.max(
-                .70,
-                +autoPitchData.volume
-              )
-            );
-        }
-      }
-
-
-      utterance.rate =
-        rate;
-
-      utterance.pitch =
-        pitch;
-
-      utterance.volume =
-        volume;
-
-
-      speaking =
-        true;
-
-      setStatus(
-        "Speaking"
-      );
-
-
-      utterance.onend =
-        () => {
-
-          speaking =
-            false;
-
-          resolve();
-        };
-
-
-      utterance.onerror =
-        () => {
-
-          speaking =
-            false;
-
-          resolve();
-        };
-
-
-      speechSynthesis.speak(
-        utterance
-      );
+    let { rate, pitch, volume } = prefs;
+    if (autoPitchOn && apd) {
+      if (isFinite(+apd.rate))   rate   = Math.min(1.15, Math.max(.75, +apd.rate));
+      if (isFinite(+apd.pitch))  pitch  = Math.min(1.40, Math.max(.60, +apd.pitch));
+      if (isFinite(+apd.volume)) volume = Math.min(1,    Math.max(.70, +apd.volume));
     }
-  );
+    utt.rate = rate; utt.pitch = pitch; utt.volume = volume;
+
+    speaking = true;
+    setStatus("Speaking");
+    utt.onend = utt.onerror = () => { speaking = false; resolve(); };
+    speechSynthesis.speak(utt);
+  });
 }
 
+async function ask(text) {
+  if (busy || speaking || !text.trim()) return;
 
-async function ask(
-  text
-){
+  busy = true;
+  waiting = false;
+  clearTimeout(wakeTimer);
+  try { recognition?.stop(); } catch(_) {}
 
-  if(
-    busy ||
-    speaking ||
-    !text.trim()
-  ){
+  setStatus("Thinking");
+  $heard.textContent = text;
+  $reply.innerHTML = "";
 
+  const url = auraUrl ? auraUrl + "/functions/v1/" + EDGE_SLUG : "";
+
+  if (!url) {
+    $reply.textContent = "No project connected — enter a Supabase URL in the sidebar.";
+    busy = false;
+    setStatus("Ready");
     return;
   }
 
+  try {
+    const headers = { "Content-Type": "application/json" };
+    if (auraKey) headers["apikey"] = auraKey;
 
-  busy =
-    true;
-
-  waiting =
-    false;
-
-
-  clearTimeout(
-    wakeTimer
-  );
-
-
-  try{
-    recognition?.stop();
-  }catch(_){}
-
-
-  setStatus(
-    "Thinking"
-  );
-
-
-  $heard.textContent =
-    text;
-
-  $reply.innerHTML =
-    "";
-
-
-  try{
-
-    const response =
-      await fetch(
-        AURA_URL,
-        {
-          method:"POST",
-
-          headers:{
-            "Content-Type":
-              "application/json",
-
-            "apikey":
-              AURA_KEY
-          },
-
-          body:JSON.stringify({
-
-            message:text,
-
-            history:
-              conversation
-                .slice(-12),
-
-            preferences:prefs,
-
-            project:
-              activeProject
-                ? {
-                    id:
-                      activeProject.id,
-
-                    name:
-                      activeProject.name
-                  }
-                : null
-          })
-        }
-      );
-
+    const res = await fetch(url, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ message: text, history: conversation.slice(-12), preferences: prefs }),
+    });
 
     let data;
+    try { data = await res.json(); } catch(_) { throw new Error("Bad response from edge function."); }
+    if (!res.ok) throw new Error(data.error || "HTTP " + res.status);
+    if (!data.text) throw new Error("Empty response.");
 
-    try{
+    conversation.push({ role: "user", content: text }, { role: "assistant", content: data.text });
+    if (conversation.length > 24) conversation.splice(0, conversation.length - 24);
 
-      data =
-        await response.json();
+    render(data.text);
+    await speak(data.spoken || data.text, data.pitch);
 
-    }catch(_){
-
-      throw new Error(
-        "AURA returned an invalid response."
-      );
-    }
-
-
-    if(!response.ok){
-
-      throw new Error(
-        data.error ||
-        "AURA request failed."
-      );
-    }
-
-
-    if(!data.text){
-
-      throw new Error(
-        "AURA returned no response."
-      );
-    }
-
-
-    conversation.push(
-      {
-        role:"user",
-        content:text
-      },
-      {
-        role:"assistant",
-        content:data.text
-      }
-    );
-
-
-    if(
-      conversation.length >
-      24
-    ){
-
-      conversation.splice(
-        0,
-        conversation.length - 24
-      );
-    }
-
-
-    render(
-      data.text
-    );
-
-
-    await speak(
-      data.spoken ||
-      data.text,
-      data.pitch
-    );
-
-
-  }catch(error){
-
-    $reply.textContent =
-      error.message;
-
-    setStatus(
-      "Error"
-    );
-
-    setPip(
-      "err"
-    );
-
-  }finally{
-
-    busy =
-      false;
-
-
-    if(
-      listening &&
-      !speaking
-    ){
-
-      waiting =
-        true;
-
-      setStatus(
-        "Listening"
-      );
-
-      setTimeout(
-        startListening,
-        200
-      );
-
-    }else{
-
-      setStatus(
-        "Ready"
-      );
+  } catch(e) {
+    $reply.textContent = e.message;
+    setStatus("Error");
+    setPip("err");
+  } finally {
+    busy = false;
+    if (connected) setPip("live");
+    if (listening && !speaking) {
+      waiting = true;
+      setStatus("Listening");
+      setTimeout(startListening, 200);
+    } else {
+      setStatus("Ready");
     }
   }
 }
 
+function onSpeech(text) {
+  text = text.trim();
+  if (!text || busy || speaking) return;
+  if (!waiting) { ask(text); return; }
 
-function onSpeech(
-  text
-){
+  const m = text.match(/^(?:(?:hey|ok|okay|yo)\s+)?aura\b[\s,:-]*(.*)?$/i);
+  if (!m) return;
 
-  text =
-    text.trim();
+  waiting = false;
+  const cmd = (m[1] || "").trim();
+  if (cmd) { ask(cmd); return; }
 
-
-  if(
-    !text ||
-    busy ||
-    speaking
-  ){
-
-    return;
-  }
-
-
-  if(!waiting){
-
-    ask(text);
-
-    return;
-  }
-
-
-  const match =
-    text.match(
-      /^(?:(?:hey|ok|okay|yo)\s+)?aura\b[\s,:-]*(.*)?$/i
-    );
-
-
-  if(!match){
-
-    return;
-  }
-
-
-  waiting =
-    false;
-
-
-  const command =
-    (
-      match[1] ||
-      ""
-    ).trim();
-
-
-  if(command){
-
-    ask(command);
-
-    return;
-  }
-
-
-  $heard.textContent =
-    "Listening…";
-
-
-  setStatus(
-    "Listening"
-  );
-
-
-  clearTimeout(
-    wakeTimer
-  );
-
-
-  wakeTimer =
-    setTimeout(
-      () => {
-
-        if(
-          !busy &&
-          !speaking
-        ){
-
-          waiting =
-            true;
-
-          $heard.textContent =
-            "";
-        }
-
-      },
-      5000
-    );
+  $heard.textContent = "Listening…";
+  setStatus("Listening");
+  clearTimeout(wakeTimer);
+  wakeTimer = setTimeout(() => {
+    if (!busy && !speaking) { waiting = true; $heard.textContent = ""; }
+  }, 5000);
 }
 
+const Recog = window.SpeechRecognition || window.webkitSpeechRecognition;
+if (Recog) {
+  recognition = new Recog();
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  recognition.lang = "en-US";
 
-const Recognition =
-  window.SpeechRecognition ||
-  window.webkitSpeechRecognition;
-
-
-if(Recognition){
-
-  recognition =
-    new Recognition();
-
-  recognition.continuous =
-    true;
-
-  recognition.interimResults =
-    true;
-
-  recognition.lang =
-    "en-US";
-
-
-  recognition.onresult =
-    event => {
-
-      let finalText =
-        "";
-
-      let interim =
-        "";
-
-
-      for(
-        let i =
-          event.resultIndex;
-
-        i <
-          event.results.length;
-
-        i++
-      ){
-
-        if(
-          event.results[i].isFinal
-        ){
-
-          finalText +=
-            event.results[i][0]
-              .transcript;
-
-        }else{
-
-          interim +=
-            event.results[i][0]
-              .transcript;
-        }
-      }
-
-
-      if(
-        interim &&
-        !busy &&
-        !speaking
-      ){
-
-        $heard.textContent =
-          interim;
-      }
-
-
-      if(finalText){
-
-        onSpeech(
-          finalText
-        );
-      }
-    };
-
-
-  recognition.onerror =
-    event => {
-
-      if(
-        event.error ===
-          "not-allowed" ||
-        event.error ===
-          "service-not-allowed"
-      ){
-
-        listening =
-          false;
-
-        updateMic();
-
-        setStatus(
-          "Mic permission denied"
-        );
-
-        return;
-      }
-
-
-      if(listening){
-
-        setTimeout(
-          startListening,
-          500
-        );
-      }
-    };
-
-
-  recognition.onend =
-    () => {
-
-      if(
-        listening &&
-        !busy &&
-        !speaking
-      ){
-
-        setTimeout(
-          startListening,
-          200
-        );
-      }
-    };
-
-}else{
-
-  $micBtn.disabled =
-    true;
-
-  $micBtn.lastChild.textContent =
-    " Not supported";
-}
-
-
-function startListening(){
-
-  if(
-    !recognition ||
-    !listening ||
-    busy ||
-    speaking
-  ){
-
-    return;
-  }
-
-
-  try{
-
-    recognition.start();
-
-  }catch(error){
-
-    if(
-      !String(
-        error.message
-      ).includes(
-        "already started"
-      )
-    ){
-
-      setTimeout(
-        () => {
-
-          if(
-            listening &&
-            !busy &&
-            !speaking
-          ){
-
-            startListening();
-          }
-
-        },
-        300
-      );
+  recognition.onresult = e => {
+    let fin = "", interim = "";
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      e.results[i].isFinal ? (fin += e.results[i][0].transcript) : (interim += e.results[i][0].transcript);
     }
-  }
-}
-
-
-function updateMic(){
-
-  $micBtn.classList.toggle(
-    "on",
-    listening
-  );
-
-
-  $micBtn.innerHTML =
-    `<svg viewBox="0 0 24 24">
-      <rect x="9" y="2" width="6" height="13" rx="3"/>
-      <path d="M5 10a7 7 0 0014 0"/>
-      <line x1="12" y1="19" x2="12" y2="23"/>
-      <line x1="8" y1="23" x2="16" y2="23"/>
-    </svg> Mic ${
-      listening
-        ? "on"
-        : "off"
-    }`;
-}
-
-
-$micBtn.onclick =
-  () => {
-
-    listening =
-      !listening;
-
-    waiting =
-      true;
-
-    updateMic();
-
-
-    if(listening){
-
-      setStatus(
-        "Listening"
-      );
-
-      $heard.textContent =
-        "";
-
-      startListening();
-
-    }else{
-
-      speechSynthesis.cancel();
-
-      clearTimeout(
-        wakeTimer
-      );
-
-
-      try{
-        recognition?.stop();
-      }catch(_){}
-
-
-      setStatus(
-        "Ready"
-      );
-
-      $heard.textContent =
-        "";
-    }
+    if (interim && !busy && !speaking) $heard.textContent = interim;
+    if (fin) onSpeech(fin);
   };
 
-
-$autoBtn.onclick =
-  () => {
-
-    autoPitchOn =
-      !autoPitchOn;
-
-
-    $autoBtn.textContent =
-      "Auto pitch: " +
-      (
-        autoPitchOn
-          ? "on"
-          : "off"
-      );
-
-
-    $autoBtn.classList.toggle(
-      "on",
-      autoPitchOn
-    );
+  recognition.onerror = e => {
+    if (e.error === "not-allowed" || e.error === "service-not-allowed") {
+      listening = false;
+      updateMicBtn();
+      setStatus("Mic permission denied");
+      return;
+    }
+    if (listening) setTimeout(startListening, 500);
   };
 
+  recognition.onend = () => {
+    if (listening && !busy && !speaking) setTimeout(startListening, 200);
+  };
+} else {
+  $micBtn.disabled = true;
+}
 
-$autoBtn.classList.add(
-  "on"
-);
-
-
-function loadVoices(){
-
-  voices =
-    speechSynthesis
-      .getVoices()
-      .filter(
-        voice =>
-          voice?.name
-      );
-
-
-  $voiceSel.innerHTML =
-    "";
-
-
-  const english =
-    voices.filter(
-      voice =>
-        /^en/i.test(
-          voice.lang
-        )
-    );
-
-
-  const list =
-    english.length
-      ? english
-      : voices;
-
-
-  if(!list.length){
-
-    $voiceSel.innerHTML =
-      "<option>No voices</option>";
-
-    return;
-  }
-
-
-  list.forEach(
-    voice => {
-
-      const option =
-        document.createElement(
-          "option"
-        );
-
-      option.value =
-        String(
-          voices.indexOf(
-            voice
-          )
-        );
-
-      option.textContent =
-        voice.name;
-
-      $voiceSel.appendChild(
-        option
-      );
+function startListening() {
+  if (!recognition || !listening || busy || speaking) return;
+  try { recognition.start(); } catch(e) {
+    if (!String(e.message).includes("already started")) {
+      setTimeout(() => { if (listening && !busy && !speaking) startListening(); }, 300);
     }
-  );
-
-
-  const preferred =
-    list.findIndex(
-      voice =>
-        /zira|google us english/i
-          .test(
-            voice.name
-          )
-    );
-
-
-  if(preferred >= 0){
-
-    $voiceSel.value =
-      String(
-        voices.indexOf(
-          list[preferred]
-        )
-      );
   }
 }
 
+function updateMicBtn() {
+  $micBtn.classList.toggle("on", listening);
+  $micBtn.innerHTML = `<svg viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="13" rx="3"/><path d="M5 10a7 7 0 0014 0"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg> Mic ${listening ? "on" : "off"}`;
+}
 
+$micBtn.onclick = () => {
+  listening = !listening;
+  waiting = true;
+  updateMicBtn();
+  if (listening) {
+    setStatus("Listening");
+    $heard.textContent = "";
+    startListening();
+  } else {
+    speechSynthesis.cancel();
+    clearTimeout(wakeTimer);
+    try { recognition?.stop(); } catch(_) {}
+    setStatus("Ready");
+    $heard.textContent = "";
+  }
+};
+
+$autoBtn.onclick = () => {
+  autoPitchOn = !autoPitchOn;
+  $autoBtn.textContent = "Auto pitch: " + (autoPitchOn ? "on" : "off");
+};
+
+function loadVoices() {
+  voices = speechSynthesis.getVoices().filter(v => v?.name);
+  $voiceSel.innerHTML = "";
+  const en = voices.filter(v => /^en/i.test(v.lang));
+  const list = en.length ? en : voices;
+  if (!list.length) { $voiceSel.innerHTML = "<option>No voices</option>"; return; }
+  list.forEach(v => {
+    const o = document.createElement("option");
+    o.value = String(voices.indexOf(v));
+    o.textContent = v.name;
+    $voiceSel.appendChild(o);
+  });
+  const pref = list.findIndex(v => /zira|google us english/i.test(v.name));
+  if (pref >= 0) $voiceSel.value = String(voices.indexOf(list[pref]));
+}
 loadVoices();
-
-speechSynthesis.onvoiceschanged =
-  loadVoices;
-
-setTimeout(
-  loadVoices,
-  400
-);
-
-setTimeout(
-  loadVoices,
-  1200
-);
-
-
-/*
- * Automatically load your AURA
- * Supabase project. No PAT needed.
- */
-setTimeout(
-  () =>
-    $loadBtn.click(),
-  300
-);
-
-
-if(
-  "serviceWorker" in navigator
-){
-
-  navigator.serviceWorker
-    .register("./sw.js")
-    .catch(
-      () => {}
-    );
-}
+speechSynthesis.onvoiceschanged = loadVoices;
+setTimeout(loadVoices, 400);
+setTimeout(loadVoices, 1200);
 </script>
-
 </body>
 </html>

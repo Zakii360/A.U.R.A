@@ -3,668 +3,425 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#f5f4f0">
-<title>A.U.R.A</title>
+<meta name="theme-color" content="#f4f3ef">
+<title>AURA</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Didact+Gothic&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-:root {
-  --bg: #f5f4f0;
-  --surface: #eceae4;
-  --text: #1a1a1a;
-  --muted: #888;
-  --dim: #bbb;
-  --border: #dddbd5;
-  --green: #4a8c5c;
-  --red: #9b4040;
-  --f: 'Didact Gothic', sans-serif;
-}
-
 html, body {
   height: 100%;
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--f);
+  background: #f4f3ef;
+  color: #1c1c1c;
+  font-family: 'Didact Gothic', sans-serif;
 }
 
 body {
-  display: grid;
-  grid-template-columns: 210px 1fr;
+  display: flex;
   min-height: 100vh;
 }
 
-aside {
-  background: var(--surface);
-  border-right: 1px solid var(--border);
+nav {
+  width: 160px;
+  flex-shrink: 0;
+  background: #eae9e4;
+  border-right: 1px solid #d8d6d0;
   display: flex;
   flex-direction: column;
-  padding: 28px 18px;
-  gap: 28px;
+  padding: 22px 14px;
+  gap: 20px;
 }
 
-.wordmark {
-  font-size: 11px;
-  letter-spacing: .22em;
-  color: var(--muted);
-  text-transform: uppercase;
-}
-
-.section {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.lbl {
+.mark {
   font-size: 10px;
-  letter-spacing: .1em;
-  color: var(--dim);
+  letter-spacing: .22em;
+  color: #aaa;
   text-transform: uppercase;
 }
 
-input, select, button { font-family: var(--f); }
-
-.field {
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 2px;
-  color: var(--text);
-  font-size: 12px;
-  padding: 7px 9px;
-  width: 100%;
-  outline: none;
+.conn {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
-.field::placeholder { color: var(--dim); }
-.field:focus { border-color: var(--muted); }
 
-.row {
+.pip-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
 }
 
 .pip {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--dim);
+  background: #ccc;
   flex-shrink: 0;
   transition: background .3s;
 }
-.pip.live { background: var(--green); }
-.pip.err  { background: var(--red); }
+.pip.on  { background: #4a8c5c; }
+.pip.err { background: #9b4040; }
 
-select.pick {
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 2px;
-  color: var(--text);
-  font-family: var(--f);
-  font-size: 12px;
-  padding: 7px 9px;
-  flex: 1;
-  outline: none;
-  cursor: pointer;
-}
-select.pick:disabled { opacity: .4; cursor: default; }
-select.pick option { background: var(--bg); }
-
-.ghost {
-  background: transparent;
-  border: 1px solid var(--border);
-  border-radius: 2px;
-  color: var(--muted);
-  font-family: var(--f);
+.pip-label {
   font-size: 11px;
-  padding: 6px 10px;
+  color: #999;
+}
+
+input {
+  font-family: 'Didact Gothic', sans-serif;
+  background: #f4f3ef;
+  border: 1px solid #d8d6d0;
+  border-radius: 2px;
+  color: #1c1c1c;
+  font-size: 11px;
+  padding: 5px 7px;
+  width: 100%;
+  outline: none;
+}
+input::placeholder { color: #bbb; }
+input:focus { border-color: #aaa; }
+
+button {
+  font-family: 'Didact Gothic', sans-serif;
+  background: transparent;
+  border: 1px solid #d8d6d0;
+  border-radius: 2px;
+  color: #999;
+  font-size: 11px;
+  padding: 5px 8px;
   cursor: pointer;
   width: 100%;
   text-align: left;
   transition: color .15s, border-color .15s;
 }
-.ghost:hover { color: var(--text); border-color: var(--muted); }
-.ghost:disabled { opacity: .35; cursor: default; }
+button:hover { color: #1c1c1c; border-color: #aaa; }
+button.on { color: #1c1c1c; border-color: #aaa; }
+button:disabled { opacity: .3; cursor: default; }
 
-.note {
+.spacer { flex: 1; }
+
+select {
+  font-family: 'Didact Gothic', sans-serif;
+  background: #f4f3ef;
+  border: 1px solid #d8d6d0;
+  border-radius: 2px;
+  color: #1c1c1c;
   font-size: 11px;
-  color: var(--muted);
-  line-height: 1.5;
+  padding: 5px 7px;
+  width: 100%;
+  outline: none;
+  cursor: pointer;
 }
-
-.bottom {
-  margin-top: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
+select option { background: #f4f3ef; }
 
 main {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 48px 56px;
-  max-width: 760px;
-  width: 100%;
+  padding: 44px 52px;
+  max-width: 680px;
 }
 
 .bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 52px;
+  margin-bottom: 40px;
 }
 
 .status {
   font-size: 11px;
-  letter-spacing: .06em;
-  color: var(--muted);
+  color: #aaa;
+  letter-spacing: .04em;
 }
 
-.mic-btn {
-  background: transparent;
-  border: 1px solid var(--border);
-  border-radius: 2px;
-  color: var(--muted);
-  font-family: var(--f);
-  font-size: 11px;
-  padding: 7px 14px;
-  cursor: pointer;
+.mic {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
+  background: transparent;
+  border: 1px solid #d8d6d0;
+  border-radius: 2px;
+  color: #aaa;
+  font-family: 'Didact Gothic', sans-serif;
+  font-size: 11px;
+  padding: 6px 12px;
+  cursor: pointer;
   transition: color .15s, border-color .15s;
+  width: auto;
+  text-align: left;
 }
-.mic-btn:hover { color: var(--text); border-color: var(--muted); }
-.mic-btn.on { color: var(--text); border-color: var(--muted); }
-.mic-btn svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+.mic:hover { color: #1c1c1c; border-color: #aaa; }
+.mic.on { color: #1c1c1c; border-color: #aaa; }
+.mic svg { width: 11px; height: 11px; stroke: currentColor; fill: none; stroke-width: 1.8; flex-shrink: 0; }
 
 .heard {
   font-size: 12px;
-  color: var(--muted);
-  margin-bottom: 24px;
+  color: #bbb;
   min-height: 18px;
+  margin-bottom: 18px;
 }
 
 .reply {
-  font-size: 22px;
+  font-size: 21px;
   line-height: 1.65;
-  color: var(--text);
+  color: #1c1c1c;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
-  max-width: 600px;
 }
 
 .reply pre {
-  margin-top: 20px;
-  padding: 14px;
-  background: var(--surface);
-  border: 1px solid var(--border);
+  margin-top: 16px;
+  padding: 12px 14px;
+  background: #eae9e4;
+  border: 1px solid #d8d6d0;
   border-radius: 2px;
   font-size: 12px;
   font-family: ui-monospace, monospace;
   overflow-x: auto;
-  color: var(--muted);
-  white-space: pre;
+  color: #888;
 }
 
-.placeholder { font-size: 15px; color: var(--dim); }
+.empty { font-size: 14px; color: #ccc; }
 
 ::-webkit-scrollbar { width: 3px; }
-::-webkit-scrollbar-thumb { background: var(--border); }
+::-webkit-scrollbar-thumb { background: #d8d6d0; }
 </style>
 </head>
 <body>
 
-<aside>
-  <div class="wordmark">AURA</div>
+<nav>
+  <div class="mark">AURA</div>
 
-  <div class="section">
-    <div class="lbl">Project URL</div>
-    <input class="field" id="urlInput" type="text" placeholder="https://xyz.supabase.co" autocomplete="off" spellcheck="false">
-    <button class="ghost" id="connectBtn">Connect</button>
-    <div class="note" id="connNote"></div>
-  </div>
-
-  <div class="section">
-    <div class="lbl">Management</div>
-    <input class="field" id="patInput" type="text" placeholder="Personal access token (optional)" autocomplete="off" spellcheck="false">
-    <button class="ghost" id="loadBtn">Load projects</button>
-    <div class="row" style="margin-top:2px;">
+  <div class="conn">
+    <div class="pip-row">
       <span class="pip" id="pip"></span>
-      <select class="pick" id="projectSelect" disabled>
-        <option value="">— none —</option>
-      </select>
+      <span class="pip-label" id="pipLabel">Not connected</span>
     </div>
-    <div class="note" id="mgmtNote">Token lets AURA list and inspect your projects.</div>
+    <input id="urlIn" type="text" placeholder="https://xyz.supabase.co" autocomplete="off" spellcheck="false">
+    <button id="saveBtn">Connect</button>
   </div>
 
-  <div class="bottom">
-    <div class="lbl">Voice</div>
-    <select class="pick" id="voiceSelect"></select>
-    <button class="ghost" id="autoBtn">Auto pitch: on</button>
-  </div>
-</aside>
+  <div class="spacer"></div>
+
+  <select id="voiceSel"></select>
+  <button id="autoBtn">Auto pitch: on</button>
+</nav>
 
 <main>
   <div class="bar">
-    <span class="status" id="statusText">Ready</span>
-    <button class="mic-btn" id="micBtn">
-      <svg viewBox="0 0 24 24">
-        <rect x="9" y="2" width="6" height="13" rx="3"/>
-        <path d="M5 10a7 7 0 0014 0"/>
-        <line x1="12" y1="19" x2="12" y2="23"/>
-        <line x1="8" y1="23" x2="16" y2="23"/>
-      </svg>
+    <span class="status" id="st">Ready</span>
+    <button class="mic" id="micBtn">
+      <svg viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="13" rx="3"/><path d="M5 10a7 7 0 0014 0"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
       Mic off
     </button>
   </div>
 
   <div class="heard" id="heard"></div>
-
-  <div class="reply" id="reply">
-    <span class="placeholder">Say "AURA" followed by your question.</span>
-  </div>
+  <div class="reply" id="reply"><span class="empty">Connect a project, turn on the mic, say "AURA".</span></div>
 </main>
 
 <script>
-const EDGE_SLUG = "aura-v3";
-const SB_MGMT  = "https://api.supabase.com";
+const SLUG = "aura-v3";
 
-let auraUrl  = localStorage.getItem("aura_url")  || "";
-let auraKey  = localStorage.getItem("aura_key")  || "";
-let pat      = localStorage.getItem("aura_pat")  || "";
-let connected = false;
-let projects  = [];
-
-let recognition = null;
-let listening = false;
-let waiting   = true;
-let busy      = false;
-let speaking  = false;
-let wakeTimer = null;
-let autoPitchOn = true;
-let voices    = [];
-const conversation = [];
+let url      = localStorage.getItem("aura_url") || "";
+let listening = false, waiting = true, busy = false, speaking = false;
+let wakeTimer = null, autoPitch = true, voices = [];
+const conv = [];
 const prefs = { rate: .94, pitch: .98, volume: 1 };
 
-const $urlInput  = document.getElementById("urlInput");
-const $connBtn   = document.getElementById("connectBtn");
-const $connNote  = document.getElementById("connNote");
-const $patInput  = document.getElementById("patInput");
-const $loadBtn   = document.getElementById("loadBtn");
-const $pip       = document.getElementById("pip");
-const $projSel   = document.getElementById("projectSelect");
-const $mgmtNote  = document.getElementById("mgmtNote");
-const $statusTxt = document.getElementById("statusText");
-const $heard     = document.getElementById("heard");
-const $reply     = document.getElementById("reply");
-const $micBtn    = document.getElementById("micBtn");
-const $autoBtn   = document.getElementById("autoBtn");
-const $voiceSel  = document.getElementById("voiceSelect");
+const $pip   = document.getElementById("pip");
+const $label = document.getElementById("pipLabel");
+const $urlIn = document.getElementById("urlIn");
+const $save  = document.getElementById("saveBtn");
+const $st    = document.getElementById("st");
+const $heard = document.getElementById("heard");
+const $reply = document.getElementById("reply");
+const $mic   = document.getElementById("micBtn");
+const $auto  = document.getElementById("autoBtn");
+const $voice = document.getElementById("voiceSel");
 
-if (auraUrl) $urlInput.value = auraUrl;
-if (pat)     $patInput.value = pat;
+if (url) { $urlIn.value = url; probe(); }
 
-function setPip(s) {
-  $pip.className = "pip" + (s === "live" ? " live" : s === "err" ? " err" : "");
-}
-function setStatus(t) { $statusTxt.textContent = t; }
-
-async function probeEdge(url, key) {
-  const r = await fetch(url + "/functions/v1/" + EDGE_SLUG, {
-    method: "OPTIONS",
-    headers: key ? { apikey: key } : {}
-  });
-  return r.ok || r.status === 204 || r.status === 200;
+function pip(s) {
+  $pip.className = "pip" + (s === "on" ? " on" : s === "err" ? " err" : "");
+  $label.textContent = s === "on" ? (url.replace("https://","").split(".")[0]) : s === "err" ? "Unreachable" : "Not connected";
 }
 
-async function fetchAnonKey(projectId) {
-  if (!pat) return "";
+async function probe() {
+  if (!url) return;
   try {
-    const r = await fetch(SB_MGMT + "/v1/projects/" + projectId + "/api-keys", {
-      headers: { Authorization: "Bearer " + pat }
-    });
-    if (!r.ok) return "";
-    const keys = await r.json();
-    return (keys || []).find(k => k.name === "anon")?.api_key || "";
-  } catch { return ""; }
+    const r = await fetch(url + "/functions/v1/" + SLUG, { method: "OPTIONS" });
+    pip(r.ok || r.status === 204 ? "on" : "err");
+  } catch { pip("err"); }
 }
 
-$connBtn.onclick = async () => {
-  const raw = $urlInput.value.trim().replace(/\/$/, "");
-  if (!raw) { $connNote.textContent = "Enter a Supabase project URL."; return; }
-
-  $connBtn.disabled = true;
-  $connBtn.textContent = "Connecting…";
-  $connNote.textContent = "";
-
-  const projectId = raw.replace("https://", "").split(".")[0];
-  let key = auraKey;
-
-  if (!key && pat) {
-    key = await fetchAnonKey(projectId);
-  }
-
-  try {
-    const ok = await probeEdge(raw, key);
-    if (ok) {
-      auraUrl = raw;
-      auraKey = key;
-      connected = true;
-      localStorage.setItem("aura_url", raw);
-      if (key) localStorage.setItem("aura_key", key);
-      $connNote.textContent = "Connected.";
-    } else {
-      $connNote.textContent = "Reached the project but the edge function didn't respond. Is aura-v3 deployed?";
-      auraUrl = raw;
-      auraKey = key;
-      connected = true;
-      localStorage.setItem("aura_url", raw);
-      if (key) localStorage.setItem("aura_key", key);
-    }
-  } catch(e) {
-    $connNote.textContent = "Could not reach " + raw;
-  }
-
-  $connBtn.disabled = false;
-  $connBtn.textContent = "Connect";
+$save.onclick = async () => {
+  const v = $urlIn.value.trim().replace(/\/$/, "");
+  if (!v) return;
+  url = v;
+  localStorage.setItem("aura_url", v);
+  $save.textContent = "Checking…";
+  $save.disabled = true;
+  await probe();
+  $save.textContent = "Connect";
+  $save.disabled = false;
 };
-
-async function mgmt(path) {
-  const r = await fetch(SB_MGMT + path, {
-    headers: { Authorization: "Bearer " + pat }
-  });
-  if (!r.ok) throw new Error("Status " + r.status);
-  return r.json();
-}
-
-$loadBtn.onclick = async () => {
-  pat = $patInput.value.trim();
-  if (!pat) { $mgmtNote.textContent = "Paste a personal access token."; return; }
-  localStorage.setItem("aura_pat", pat);
-
-  $loadBtn.disabled = true;
-  $loadBtn.textContent = "Loading…";
-  $mgmtNote.textContent = "";
-  setPip("");
-
-  try {
-    projects = await mgmt("/v1/projects");
-    $projSel.innerHTML = '<option value="">— select —</option>';
-    projects.forEach(p => {
-      const o = document.createElement("option");
-      o.value = p.id;
-      o.textContent = p.name;
-      $projSel.appendChild(o);
-    });
-    $projSel.disabled = false;
-    $mgmtNote.textContent = projects.length + " project" + (projects.length !== 1 ? "s" : "") + ".";
-
-    const saved = localStorage.getItem("aura_project");
-    if (saved && projects.find(p => p.id === saved)) {
-      $projSel.value = saved;
-      await activateProject(saved);
-    }
-  } catch(e) {
-    $mgmtNote.textContent = "Couldn't load projects — check your token.";
-    setPip("err");
-  }
-
-  $loadBtn.disabled = false;
-  $loadBtn.textContent = "Load projects";
-};
-
-async function activateProject(id) {
-  if (!id) { setPip(""); connected = false; return; }
-  $mgmtNote.textContent = "Connecting…";
-  setPip("");
-
-  try {
-    const detail = await mgmt("/v1/projects/" + id);
-    const key = await fetchAnonKey(id);
-    if (!key) throw new Error("No anon key returned.");
-
-    const url = "https://" + detail.id + ".supabase.co";
-    const ok = await probeEdge(url, key);
-
-    auraUrl = url;
-    auraKey = key;
-    connected = true;
-    localStorage.setItem("aura_url", url);
-    localStorage.setItem("aura_key", key);
-    localStorage.setItem("aura_project", id);
-    $urlInput.value = url;
-
-    setPip(ok ? "live" : "err");
-    $mgmtNote.textContent = detail.name + (ok ? "" : " (edge function not found)");
-  } catch(e) {
-    setPip("err");
-    $mgmtNote.textContent = e.message;
-  }
-}
-
-$projSel.onchange = () => activateProject($projSel.value);
-
-if (auraUrl) {
-  connected = true;
-  probeEdge(auraUrl, auraKey).then(ok => setPip(ok ? "live" : "err")).catch(() => setPip("err"));
-}
 
 function render(text) {
   $reply.textContent = "";
-  const parts = String(text).split(/(```[\s\S]*?```)/g);
-  for (const part of parts) {
-    if (part.startsWith("```") && part.endsWith("```")) {
+  String(text).split(/(```[\s\S]*?```)/g).forEach(p => {
+    if (p.startsWith("```") && p.endsWith("```")) {
       const pre = document.createElement("pre");
-      pre.textContent = part.replace(/^```[^\n]*\n?/, "").replace(/```$/, "");
+      pre.textContent = p.replace(/^```[^\n]*\n?/, "").replace(/```$/, "");
       $reply.appendChild(pre);
-    } else if (part.trim()) {
-      $reply.appendChild(Object.assign(document.createElement("span"), { textContent: part }));
+    } else if (p.trim()) {
+      $reply.appendChild(Object.assign(document.createElement("span"), { textContent: p }));
     }
-  }
+  });
 }
 
-function toSpeech(text) {
-  return String(text)
-    .replace(/```[\s\S]*?```/g, "I've displayed the code.")
-    .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
-    .replace(/[*_~`#>]/g, "")
-    .replace(/\b(API|JSON|HTML|CSS|URL|SQL|JWT|UUID)\b/gi, m => m.split("").join(" "))
-    .replace(/—/g, ", ")
-    .replace(/\s+/g, " ")
-    .trim();
+function toSpeech(t) {
+  return t.replace(/```[\s\S]*?```/g, "I've displayed the code.")
+          .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+          .replace(/[*_~`#>]/g, "")
+          .replace(/\b(API|JSON|HTML|CSS|URL|SQL|JWT|UUID)\b/gi, m => m.split("").join(" "))
+          .replace(/—/g, ", ").replace(/\s+/g, " ").trim();
 }
 
 function speak(text, apd) {
-  return new Promise(resolve => {
-    const clean = toSpeech(text);
-    if (!clean) { resolve(); return; }
+  return new Promise(r => {
+    const s = toSpeech(text);
+    if (!s) { r(); return; }
     speechSynthesis.cancel();
-
-    const utt = new SpeechSynthesisUtterance(clean);
+    const u = new SpeechSynthesisUtterance(s);
+    const idx = Number($voice.value);
     const all = speechSynthesis.getVoices();
-    const idx = Number($voiceSel.value);
-    if (Number.isInteger(idx) && all[idx]) utt.voice = all[idx];
-
+    if (Number.isInteger(idx) && all[idx]) u.voice = all[idx];
     let { rate, pitch, volume } = prefs;
-    if (autoPitchOn && apd) {
+    if (autoPitch && apd) {
       if (isFinite(+apd.rate))   rate   = Math.min(1.15, Math.max(.75, +apd.rate));
-      if (isFinite(+apd.pitch))  pitch  = Math.min(1.40, Math.max(.60, +apd.pitch));
-      if (isFinite(+apd.volume)) volume = Math.min(1,    Math.max(.70, +apd.volume));
+      if (isFinite(+apd.pitch))  pitch  = Math.min(1.4,  Math.max(.6,  +apd.pitch));
+      if (isFinite(+apd.volume)) volume = Math.min(1,    Math.max(.7,  +apd.volume));
     }
-    utt.rate = rate; utt.pitch = pitch; utt.volume = volume;
-
-    speaking = true;
-    setStatus("Speaking");
-    utt.onend = utt.onerror = () => { speaking = false; resolve(); };
-    speechSynthesis.speak(utt);
+    u.rate = rate; u.pitch = pitch; u.volume = volume;
+    speaking = true; $st.textContent = "Speaking";
+    u.onend = u.onerror = () => { speaking = false; r(); };
+    speechSynthesis.speak(u);
   });
 }
 
 async function ask(text) {
   if (busy || speaking || !text.trim()) return;
+  if (!url) { $reply.textContent = "No project connected."; return; }
 
-  busy = true;
-  waiting = false;
+  busy = true; waiting = false;
   clearTimeout(wakeTimer);
-  try { recognition?.stop(); } catch(_) {}
+  try { recog?.stop(); } catch(_) {}
 
-  setStatus("Thinking");
+  $st.textContent = "Thinking";
   $heard.textContent = text;
   $reply.innerHTML = "";
 
-  const url = auraUrl ? auraUrl + "/functions/v1/" + EDGE_SLUG : "";
-
-  if (!url) {
-    $reply.textContent = "No project connected — enter a Supabase URL in the sidebar.";
-    busy = false;
-    setStatus("Ready");
-    return;
-  }
-
   try {
-    const headers = { "Content-Type": "application/json" };
-    if (auraKey) headers["apikey"] = auraKey;
-
-    const res = await fetch(url, {
+    const res = await fetch(url + "/functions/v1/" + SLUG, {
       method: "POST",
-      headers,
-      body: JSON.stringify({ message: text, history: conversation.slice(-12), preferences: prefs }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: text, history: conv.slice(-12), preferences: prefs }),
     });
-
-    let data;
-    try { data = await res.json(); } catch(_) { throw new Error("Bad response from edge function."); }
-    if (!res.ok) throw new Error(data.error || "HTTP " + res.status);
-    if (!data.text) throw new Error("Empty response.");
-
-    conversation.push({ role: "user", content: text }, { role: "assistant", content: data.text });
-    if (conversation.length > 24) conversation.splice(0, conversation.length - 24);
-
-    render(data.text);
-    await speak(data.spoken || data.text, data.pitch);
-
+    let d;
+    try { d = await res.json(); } catch { throw new Error("Bad response."); }
+    if (!res.ok) throw new Error(d.error || "HTTP " + res.status);
+    if (!d.text) throw new Error("Empty response.");
+    conv.push({ role: "user", content: text }, { role: "assistant", content: d.text });
+    if (conv.length > 24) conv.splice(0, conv.length - 24);
+    render(d.text);
+    await speak(d.spoken || d.text, d.pitch);
   } catch(e) {
     $reply.textContent = e.message;
-    setStatus("Error");
-    setPip("err");
+    $st.textContent = "Error";
+    pip("err");
   } finally {
     busy = false;
-    if (connected) setPip("live");
-    if (listening && !speaking) {
-      waiting = true;
-      setStatus("Listening");
-      setTimeout(startListening, 200);
-    } else {
-      setStatus("Ready");
-    }
+    if (url) pip("on");
+    if (listening && !speaking) { waiting = true; $st.textContent = "Listening"; setTimeout(go, 200); }
+    else $st.textContent = "Ready";
   }
 }
 
-function onSpeech(text) {
+function heard(text) {
   text = text.trim();
   if (!text || busy || speaking) return;
   if (!waiting) { ask(text); return; }
-
   const m = text.match(/^(?:(?:hey|ok|okay|yo)\s+)?aura\b[\s,:-]*(.*)?$/i);
   if (!m) return;
-
   waiting = false;
   const cmd = (m[1] || "").trim();
   if (cmd) { ask(cmd); return; }
-
   $heard.textContent = "Listening…";
-  setStatus("Listening");
+  $st.textContent = "Listening";
   clearTimeout(wakeTimer);
-  wakeTimer = setTimeout(() => {
-    if (!busy && !speaking) { waiting = true; $heard.textContent = ""; }
-  }, 5000);
+  wakeTimer = setTimeout(() => { if (!busy && !speaking) { waiting = true; $heard.textContent = ""; } }, 5000);
 }
 
 const Recog = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recog = null;
 if (Recog) {
-  recognition = new Recog();
-  recognition.continuous = true;
-  recognition.interimResults = true;
-  recognition.lang = "en-US";
-
-  recognition.onresult = e => {
-    let fin = "", interim = "";
-    for (let i = e.resultIndex; i < e.results.length; i++) {
-      e.results[i].isFinal ? (fin += e.results[i][0].transcript) : (interim += e.results[i][0].transcript);
-    }
-    if (interim && !busy && !speaking) $heard.textContent = interim;
-    if (fin) onSpeech(fin);
+  recog = new Recog();
+  recog.continuous = true; recog.interimResults = true; recog.lang = "en-US";
+  recog.onresult = e => {
+    let fin = "", tmp = "";
+    for (let i = e.resultIndex; i < e.results.length; i++)
+      e.results[i].isFinal ? (fin += e.results[i][0].transcript) : (tmp += e.results[i][0].transcript);
+    if (tmp && !busy && !speaking) $heard.textContent = tmp;
+    if (fin) heard(fin);
   };
-
-  recognition.onerror = e => {
+  recog.onerror = e => {
     if (e.error === "not-allowed" || e.error === "service-not-allowed") {
-      listening = false;
-      updateMicBtn();
-      setStatus("Mic permission denied");
-      return;
+      listening = false; micLabel(); $st.textContent = "Mic denied"; return;
     }
-    if (listening) setTimeout(startListening, 500);
+    if (listening) setTimeout(go, 500);
   };
+  recog.onend = () => { if (listening && !busy && !speaking) setTimeout(go, 200); };
+} else { $mic.disabled = true; }
 
-  recognition.onend = () => {
-    if (listening && !busy && !speaking) setTimeout(startListening, 200);
-  };
-} else {
-  $micBtn.disabled = true;
-}
-
-function startListening() {
-  if (!recognition || !listening || busy || speaking) return;
-  try { recognition.start(); } catch(e) {
-    if (!String(e.message).includes("already started")) {
-      setTimeout(() => { if (listening && !busy && !speaking) startListening(); }, 300);
-    }
+function go() {
+  if (!recog || !listening || busy || speaking) return;
+  try { recog.start(); } catch(e) {
+    if (!String(e.message).includes("already started"))
+      setTimeout(() => { if (listening && !busy && !speaking) go(); }, 300);
   }
 }
 
-function updateMicBtn() {
-  $micBtn.classList.toggle("on", listening);
-  $micBtn.innerHTML = `<svg viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="13" rx="3"/><path d="M5 10a7 7 0 0014 0"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg> Mic ${listening ? "on" : "off"}`;
+function micLabel() {
+  $mic.classList.toggle("on", listening);
+  $mic.innerHTML = `<svg viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="13" rx="3"/><path d="M5 10a7 7 0 0014 0"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg> Mic ${listening ? "on" : "off"}`;
 }
 
-$micBtn.onclick = () => {
-  listening = !listening;
-  waiting = true;
-  updateMicBtn();
-  if (listening) {
-    setStatus("Listening");
-    $heard.textContent = "";
-    startListening();
-  } else {
-    speechSynthesis.cancel();
-    clearTimeout(wakeTimer);
-    try { recognition?.stop(); } catch(_) {}
-    setStatus("Ready");
-    $heard.textContent = "";
-  }
+$mic.onclick = () => {
+  listening = !listening; waiting = true; micLabel();
+  if (listening) { $st.textContent = "Listening"; $heard.textContent = ""; go(); }
+  else { speechSynthesis.cancel(); clearTimeout(wakeTimer); try { recog?.stop(); } catch(_) {} $st.textContent = "Ready"; $heard.textContent = ""; }
 };
 
-$autoBtn.onclick = () => {
-  autoPitchOn = !autoPitchOn;
-  $autoBtn.textContent = "Auto pitch: " + (autoPitchOn ? "on" : "off");
-};
+$auto.onclick = () => { autoPitch = !autoPitch; $auto.textContent = "Auto pitch: " + (autoPitch ? "on" : "off"); $auto.classList.toggle("on", autoPitch); };
+$auto.classList.add("on");
 
 function loadVoices() {
   voices = speechSynthesis.getVoices().filter(v => v?.name);
-  $voiceSel.innerHTML = "";
   const en = voices.filter(v => /^en/i.test(v.lang));
   const list = en.length ? en : voices;
-  if (!list.length) { $voiceSel.innerHTML = "<option>No voices</option>"; return; }
+  $voice.innerHTML = "";
+  if (!list.length) { $voice.innerHTML = "<option>No voices</option>"; return; }
   list.forEach(v => {
     const o = document.createElement("option");
-    o.value = String(voices.indexOf(v));
-    o.textContent = v.name;
-    $voiceSel.appendChild(o);
+    o.value = String(voices.indexOf(v)); o.textContent = v.name;
+    $voice.appendChild(o);
   });
-  const pref = list.findIndex(v => /zira|google us english/i.test(v.name));
-  if (pref >= 0) $voiceSel.value = String(voices.indexOf(list[pref]));
+  const p = list.findIndex(v => /zira|google us english/i.test(v.name));
+  if (p >= 0) $voice.value = String(voices.indexOf(list[p]));
 }
 loadVoices();
 speechSynthesis.onvoiceschanged = loadVoices;

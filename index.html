@@ -3,7 +3,6 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#f4f3ef">
 <title>AURA</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,10 +17,7 @@ html, body {
   font-family: 'Didact Gothic', sans-serif;
 }
 
-body {
-  display: flex;
-  min-height: 100vh;
-}
+body { display: flex; min-height: 100vh; }
 
 nav {
   width: 160px;
@@ -34,28 +30,14 @@ nav {
   gap: 20px;
 }
 
-.mark {
-  font-size: 10px;
-  letter-spacing: .22em;
-  color: #aaa;
-  text-transform: uppercase;
-}
+.mark { font-size: 10px; letter-spacing: .22em; color: #aaa; text-transform: uppercase; }
 
-.conn {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
+.conn { display: flex; flex-direction: column; gap: 6px; }
 
-.pip-row {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-}
+.pip-row { display: flex; align-items: center; gap: 7px; }
 
 .pip {
-  width: 6px;
-  height: 6px;
+  width: 6px; height: 6px;
   border-radius: 50%;
   background: #ccc;
   flex-shrink: 0;
@@ -64,10 +46,7 @@ nav {
 .pip.on  { background: #4a8c5c; }
 .pip.err { background: #9b4040; }
 
-.pip-label {
-  font-size: 11px;
-  color: #999;
-}
+.pip-label { font-size: 11px; color: #999; }
 
 input {
   font-family: 'Didact Gothic', sans-serif;
@@ -100,8 +79,6 @@ button:hover { color: #1c1c1c; border-color: #aaa; }
 button.on { color: #1c1c1c; border-color: #aaa; }
 button:disabled { opacity: .3; cursor: default; }
 
-.spacer { flex: 1; }
-
 select {
   font-family: 'Didact Gothic', sans-serif;
   background: #f4f3ef;
@@ -115,6 +92,14 @@ select {
   cursor: pointer;
 }
 select option { background: #f4f3ef; }
+
+.spacer { flex: 1; }
+
+.ring-note {
+  font-size: 10px;
+  color: #bbb;
+  line-height: 1.5;
+}
 
 main {
   flex: 1;
@@ -131,11 +116,7 @@ main {
   margin-bottom: 40px;
 }
 
-.status {
-  font-size: 11px;
-  color: #aaa;
-  letter-spacing: .04em;
-}
+.status { font-size: 11px; color: #aaa; letter-spacing: .04em; }
 
 .mic {
   display: flex;
@@ -157,12 +138,7 @@ main {
 .mic.on { color: #1c1c1c; border-color: #aaa; }
 .mic svg { width: 11px; height: 11px; stroke: currentColor; fill: none; stroke-width: 1.8; flex-shrink: 0; }
 
-.heard {
-  font-size: 12px;
-  color: #bbb;
-  min-height: 18px;
-  margin-bottom: 18px;
-}
+.heard { font-size: 12px; color: #bbb; min-height: 18px; margin-bottom: 18px; }
 
 .reply {
   font-size: 21px;
@@ -208,6 +184,7 @@ main {
 
   <select id="voiceSel"></select>
   <button id="autoBtn">Auto pitch: on</button>
+  <div class="ring-note" id="ringNote"></div>
 </nav>
 
 <main>
@@ -224,30 +201,36 @@ main {
 </main>
 
 <script>
-const SLUG = "aura-v3";
+const SLUG    = "aura-v3";
+const BH_PORT = 8794;
+const BH      = "http://127.0.0.1:" + BH_PORT;
 
-let url      = localStorage.getItem("aura_url") || "";
+let url       = localStorage.getItem("aura_url") || "";
 let listening = false, waiting = true, busy = false, speaking = false;
 let wakeTimer = null, autoPitch = true, voices = [];
-const conv = [];
-const prefs = { rate: .94, pitch: .98, volume: 1 };
+let ringLive  = false;
+const conv    = [];
+const prefs   = { rate: .94, pitch: .98, volume: 1 };
 
-const $pip   = document.getElementById("pip");
-const $label = document.getElementById("pipLabel");
-const $urlIn = document.getElementById("urlIn");
-const $save  = document.getElementById("saveBtn");
-const $st    = document.getElementById("st");
-const $heard = document.getElementById("heard");
-const $reply = document.getElementById("reply");
-const $mic   = document.getElementById("micBtn");
-const $auto  = document.getElementById("autoBtn");
-const $voice = document.getElementById("voiceSel");
+const $pip    = document.getElementById("pip");
+const $label  = document.getElementById("pipLabel");
+const $urlIn  = document.getElementById("urlIn");
+const $save   = document.getElementById("saveBtn");
+const $st     = document.getElementById("st");
+const $heard  = document.getElementById("heard");
+const $reply  = document.getElementById("reply");
+const $mic    = document.getElementById("micBtn");
+const $auto   = document.getElementById("autoBtn");
+const $voice  = document.getElementById("voiceSel");
+const $ringN  = document.getElementById("ringNote");
 
 if (url) { $urlIn.value = url; probe(); }
 
 function pip(s) {
   $pip.className = "pip" + (s === "on" ? " on" : s === "err" ? " err" : "");
-  $label.textContent = s === "on" ? (url.replace("https://","").split(".")[0]) : s === "err" ? "Unreachable" : "Not connected";
+  $label.textContent = s === "on"
+    ? (url.replace("https://","").split(".")[0])
+    : s === "err" ? "Unreachable" : "Not connected";
 }
 
 async function probe() {
@@ -269,6 +252,25 @@ $save.onclick = async () => {
   $save.textContent = "Connect";
   $save.disabled = false;
 };
+
+// Ring state — writes to barehands server if it's running locally
+async function ring(state, mood) {
+  try {
+    const body = { state };
+    if (mood) body.mood = mood;
+    await fetch(BH + "/aura-state", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!ringLive) {
+      ringLive = true;
+      $ringN.textContent = "Ring connected on :" + BH_PORT;
+    }
+  } catch {
+    if (ringLive) { ringLive = false; $ringN.textContent = ""; }
+  }
+}
 
 function render(text) {
   $reply.textContent = "";
@@ -307,8 +309,10 @@ function speak(text, apd) {
       if (isFinite(+apd.volume)) volume = Math.min(1,    Math.max(.7,  +apd.volume));
     }
     u.rate = rate; u.pitch = pitch; u.volume = volume;
-    speaking = true; $st.textContent = "Speaking";
-    u.onend = u.onerror = () => { speaking = false; r(); };
+    speaking = true;
+    $st.textContent = "Speaking";
+    ring("speaking");
+    u.onend = u.onerror = () => { speaking = false; ring("idle"); r(); };
     speechSynthesis.speak(u);
   });
 }
@@ -324,6 +328,7 @@ async function ask(text) {
   $st.textContent = "Thinking";
   $heard.textContent = text;
   $reply.innerHTML = "";
+  ring("thinking");
 
   try {
     const res = await fetch(url + "/functions/v1/" + SLUG, {
@@ -343,6 +348,7 @@ async function ask(text) {
     $reply.textContent = e.message;
     $st.textContent = "Error";
     pip("err");
+    ring("idle");
   } finally {
     busy = false;
     if (url) pip("on");
@@ -362,8 +368,11 @@ function heard(text) {
   if (cmd) { ask(cmd); return; }
   $heard.textContent = "Listening…";
   $st.textContent = "Listening";
+  ring("listening");
   clearTimeout(wakeTimer);
-  wakeTimer = setTimeout(() => { if (!busy && !speaking) { waiting = true; $heard.textContent = ""; } }, 5000);
+  wakeTimer = setTimeout(() => {
+    if (!busy && !speaking) { waiting = true; $heard.textContent = ""; ring("idle"); }
+  }, 5000);
 }
 
 const Recog = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -402,11 +411,20 @@ function micLabel() {
 
 $mic.onclick = () => {
   listening = !listening; waiting = true; micLabel();
-  if (listening) { $st.textContent = "Listening"; $heard.textContent = ""; go(); }
-  else { speechSynthesis.cancel(); clearTimeout(wakeTimer); try { recog?.stop(); } catch(_) {} $st.textContent = "Ready"; $heard.textContent = ""; }
+  if (listening) {
+    $st.textContent = "Listening"; $heard.textContent = ""; ring("listening"); go();
+  } else {
+    speechSynthesis.cancel(); clearTimeout(wakeTimer);
+    try { recog?.stop(); } catch(_) {}
+    $st.textContent = "Ready"; $heard.textContent = ""; ring("idle");
+  }
 };
 
-$auto.onclick = () => { autoPitch = !autoPitch; $auto.textContent = "Auto pitch: " + (autoPitch ? "on" : "off"); $auto.classList.toggle("on", autoPitch); };
+$auto.onclick = () => {
+  autoPitch = !autoPitch;
+  $auto.textContent = "Auto pitch: " + (autoPitch ? "on" : "off");
+  $auto.classList.toggle("on", autoPitch);
+};
 $auto.classList.add("on");
 
 function loadVoices() {
